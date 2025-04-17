@@ -70,6 +70,18 @@ button:hover {
     animation: fadeIn 1s ease-in-out;
 }
 
+#forecast table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+#forecast th, #forecast td {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
 @keyframes fadeIn {
     0% { opacity: 0; }
     100% { opacity: 1; }

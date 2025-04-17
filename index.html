@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Weer App</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 </head>
 <body>
     <div class="container">
@@ -12,12 +14,25 @@
         <input type="text" id="location" placeholder="Voer een stad in..." />
         <button onclick="getWeather()">Bekijk Weer</button>
 
+        <div id="map" style="height: 300px; margin-top: 20px;"></div>
+
         <div class="weather-info" id="weatherInfo" style="display:none;">
             <h2 id="cityName"></h2>
             <p id="weatherDescription"></p>
             <p><strong id="temperature"></strong></p>
             <p><strong>Luchtvochtigheid:</strong> <span id="humidity"></span>%</p>
             <p><strong>Windsnelheid:</strong> <span id="windSpeed"></span> km/h</p>
+        </div>
+
+        <div id="forecast" style="display:none;">
+            <h3>7-Dagen Weersvoorspelling</h3>
+            <table>
+                <tr>
+                    <th>Dag</th>
+                    <th>Temperatuur</th>
+                    <th>Weer</th>
+                </tr>
+            </table>
         </div>
 
         <div class="loading" id="loading" style="display:none;">

@@ -3,43 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weer App</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <title>Weer App - KNMI</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Weer App</h1>
-        <input type="text" id="location" placeholder="Voer een stad in..." />
-        <button onclick="getWeather()">Bekijk Weer</button>
-
-        <div id="map" style="height: 300px; margin-top: 20px;"></div>
-
-        <div class="weather-info" id="weatherInfo" style="display:none;">
-            <h2 id="cityName"></h2>
-            <p id="weatherDescription"></p>
-            <p><strong id="temperature"></strong></p>
-            <p><strong>Luchtvochtigheid:</strong> <span id="humidity"></span>%</p>
-            <p><strong>Windsnelheid:</strong> <span id="windSpeed"></span> km/h</p>
+    <div class="weather-app">
+        <div class="weather-header">
+            <div class="search-container">
+                <input type="text" id="location" placeholder="Zoek een locatie..." />
+                <button onclick="getWeather()"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="location-info">
+                <h1 id="cityName">-</h1>
+                <p id="currentDate">-</p>
+            </div>
         </div>
 
-        <div id="forecast" style="display:none;">
-            <h3>7-Dagen Weersvoorspelling</h3>
-            <table>
-                <tr>
-                    <th>Dag</th>
-                    <th>Temperatuur</th>
-                    <th>Weer</th>
-                </tr>
-            </table>
+        <div class="weather-current">
+            <div class="temperature-container">
+                <div id="temperature">-</div>
+                <div class="weather-condition" id="weatherDescription">-</div>
+            </div>
+            <div class="weather-icon">
+                <canvas id="weatherCanvas" width="100" height="100"></canvas>
+            </div>
         </div>
 
-        <div class="loading" id="loading" style="display:none;">
-            Laden...
+        <div class="weather-details">
+            <div class="detail-item">
+                <i class="fas fa-tint"></i>
+                <span id="humidity">-</span>%
+            </div>
+            <div class="detail-item">
+                <i class="fas fa-wind"></i>
+                <span id="windSpeed">-</span> km/h
+            </div>
+            <div class="detail-item">
+                <i class="fas fa-temperature-low"></i>
+                <span id="feelsLike">-</span>°
+            </div>
+        </div>
+
+        <div class="hourly-forecast">
+            <div class="hourly-container" id="hourlyForecast">
+                <!-- Uurgegevens komen hier -->
+            </div>
+        </div>
+
+        <div class="daily-forecast">
+            <h3>10-Daagse voorspelling</h3>
+            <div class="daily-container" id="dailyForecast">
+                <!-- Daggegevens komen hier -->
+            </div>
+        </div>
+
+        <div id="map" class="map-container"></div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Gegevens laden...</p>
         </div>
     </div>
 
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

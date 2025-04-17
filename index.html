@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moderne Weer App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #61c0bf, #6a8f7d);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 1s ease;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 32px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            width: 80%;
+            max-width: 300px;
+            transition: 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border: 2px solid #61c0bf;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #61c0bf;
+            color: #fff;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background-color: #4fa29e;
+        }
+
+        .weather-info {
+            margin-top: 30px;
+            font-size: 20px;
+            animation: fadeIn 1.5s ease;
+        }
+
+        .loading {
+            font-size: 18px;
+            color: #ddd;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Weer App</h1>
+        <input type="text" id="location" placeholder="Voer een stad in..." />
+        <button onclick="getWeather()">Bekijk Weer</button>
+
+        <div class="weather-info" id="weatherInfo" style="display:none;">
+            <h2 id="cityName"></h2>
+            <p id="weatherDescription"></p>
+            <p><strong id="temperature"></strong></p>
+            <p><strong>Luchtvochtigheid:</strong> <span id="humidity"></span>%</p>
+            <p><strong>Windsnelheid:</strong> <span id="windSpeed"></span> km/h</p>
+        </div>
+
+        <div class="loading" id="loading" style="display:none;">
+            Laden...
+        </div>
+    </div>
+
+    <script>
+        const apiKey = "51449fa3b241b52737fe2b3626795957"; // Vervang met je eigen API-sleutel
+
+        // Haal de weerinformatie op voor een opgegeven stad
+        function getWeather() {
+            const location = document.getElementById("location").value;
+
+            if (!location) {
+                alert("Voer een stad in!");
+                return;
+            }
+
+            // Toon de laadstatus
+            document.getElementById("loading").style.display = "block";
+            document.getElementById("weatherInfo").style.display = "none";
+
+            const url = `https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${apiKey}&units=metric&lang=nl`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("loading").style.display = "none";
+
+                    // Toon de weerinformatie
+                    document.getElementById("cityName").innerText = data.name;
+                    document.getElementById("weatherDescription").innerText = data.weather[0].description;
+                    document.getElementById("temperature").innerText = `${data.main.temp}°C`;
+                    document.getElementById("humidity").innerText = data.main.humidity;
+                    document.getElementById("windSpeed").innerText = data.wind.speed;
+
+                    document.getElementById("weatherInfo").style.display = "block";
+                })
+                .catch(error => {
+                    document.getElementById("loading").style.display = "none";
+                    alert("Er is een fout opgetreden. Probeer het opnieuw.");
+                });
+        }
+    </script>
+</body>
+</html>

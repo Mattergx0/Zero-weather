@@ -1,62 +1,99 @@
-const apiKey = "8a11fa30ad"; // Jouw API-sleutel van OpenWeatherMap
+// KNMI API configuratie
+const API_BASE_URL = "https://weerlive.nl/api/";
+const API_KEY = "8a11fa30ad"; // Vervang met jouw KNMI API key
+
+// Weer iconen mapping
+const weatherIcons = {
+    "zonnig": "☀️",
+    "bewolkt": "☁️",
+    "regen": "🌧️",
+    "sneeuw": "❄️",
+    "onweer": "⛈️",
+    "mist": "🌫️"
+};
 
 function getWeather() {
-    const location = document.getElementById("location").value;
-
+    const location = document.getElementById("location").value.trim();
+    
     if (!location) {
-        alert("Voer een stad in!");
+        alert("Voer een locatie in");
         return;
     }
 
-    // Toon laadindicator
-    document.getElementById("loading").style.display = "block";
-    document.getElementById("weatherInfo").style.display = "none";
-    document.getElementById("forecast").style.display = "none";
+    showLoading(true);
 
-    // Haal locatiegegevens op via OpenWeatherMap
-    const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${apiKey}&units=metric&lang=nl`;
-    const forecastUrl = `https://api.openweathermap.org/data/2.5/onecall?lat=52.379189&lon=4.900931&exclude=hourly,minutely&appid=${apiKey}&units=metric&lang=nl`;
-
-    // Weergegevens
-    fetch(weatherUrl)
+    // KNMI API aanroep
+    fetch(`${API_BASE_URL}weerlive.php?key=${API_KEY}&locatie=${encodeURIComponent(location)}`)
         .then(response => response.json())
         .then(data => {
-            document.getElementById("loading").style.display = "none";
-
-            // Toon de huidige weerinformatie
-            document.getElementById("cityName").innerText = data.name;
-            document.getElementById("weatherDescription").innerText = data.weather[0].description;
-            document.getElementById("temperature").innerText = `${data.main.temp}°C`;
-            document.getElementById("humidity").innerText = data.main.humidity;
-            document.getElementById("windSpeed").innerText = data.wind.speed;
-
-            document.getElementById("weatherInfo").style.display = "block";
-
-            // Voeg de kaart toe
-            const map = L.map('map').setView([data.coord.lat, data.coord.lon], 13);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-            L.marker([data.coord.lat, data.coord.lon]).addTo(map)
-                .bindPopup(`<b>${data.name}</b>`)
-                .openPopup();
+            if (data.liveweer && data.liveweer.length > 0) {
+                const weatherData = data.liveweer[0];
+                updateCurrentWeather(weatherData);
+                updateMap(weatherData);
+            } else {
+                throw new Error("Geen data gevonden");
+            }
         })
         .catch(error => {
-            document.getElementById("loading").style.display = "none";
-            alert("Er is een fout opgetreden. Probeer het opnieuw.");
-        });
-
-    // 7-Dagenvoorspelling
-    fetch(forecastUrl)
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById("forecast").style.display = "block";
-            const forecastTable = document.querySelector("#forecast table");
-            data.daily.forEach((day, index) => {
-                if (index < 7) {
-                    const row = forecastTable.insertRow();
-                    row.insertCell(0).innerText = new Date(day.dt * 1000).toLocaleDateString();
-                    row.insertCell(1).innerText = `${day.temp.day}°C`;
-                    row.insertCell(2).innerText = day.weather[0].description;
-                }
-            });
-        });
+            console.error("Fout bij ophalen data:", error);
+            alert("Kon weerdata niet ophalen. Probeer een andere locatie.");
+        })
+        .finally(() => showLoading(false));
 }
+
+function updateCurrentWeather(data) {
+    // Update huidige weer
+    document.getElementById("cityName").textContent = data.plaats;
+    document.getElementById("temperature").textContent = `${data.temp}°`;
+    document.getElementById("weatherDescription").textContent = data.samenv;
+    document.getElementById("humidity").textContent = data.lv;
+    document.getElementById("windSpeed").textContent = data.windkmh;
+    document.getElementById("feelsLike").textContent = data.gtemp;
+    
+    // Update datum
+    const now = new Date();
+    document.getElementById("currentDate").textContent = now.toLocaleDateString('nl-NL', { 
+        weekday: 'long', 
+        day: 'numeric', 
+        month: 'long' 
+    });
+    
+    // Update weericoon (simpele versie)
+    const weatherCanvas = document.getElementById("weatherCanvas");
+    const ctx = weatherCanvas.getContext("2d");
+    // Hier zou je een complexere icoon rendering kunnen doen
+}
+
+function updateMap(data) {
+    if (data.lat && data.lon) {
+        const map = L.map('map').setView([data.lat, data.lon], 10);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+        L.marker([data.lat, data.lon]).addTo(map)
+            .bindPopup(`<b>${data.plaats}</b><br>${data.temp}°C`)
+            .openPopup();
+    }
+}
+
+function showLoading(show) {
+    document.getElementById("loading").style.display = show ? "flex" : "none";
+}
+
+// Initialisatie
+document.addEventListener('DOMContentLoaded', function() {
+    // Event listener voor enter toets
+    document.getElementById("location").addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            getWeather();
+        }
+    });
+    
+    // Toon huidige datum
+    const now = new Date();
+    document.getElementById("currentDate").textContent = now.toLocaleDateString('nl-NL', { 
+        weekday: 'long', 
+        day: 'numeric', 
+        month: 'long' 
+    });
+});

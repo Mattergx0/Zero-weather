@@ -1,0 +1,76 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #61c0bf, #6a8f7d);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: #fff;
+    overflow: hidden;
+}
+
+.container {
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    animation: fadeIn 1s ease;
+    width: 90%;
+    max-width: 500px;
+}
+
+h1 {
+    margin-bottom: 20px;
+    font-size: 32px;
+}
+
+input[type="text"] {
+    padding: 10px;
+    font-size: 18px;
+    border: none;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    width: 80%;
+    max-width: 300px;
+    transition: 0.3s;
+}
+
+input[type="text"]:focus {
+    outline: none;
+    border: 2px solid #61c0bf;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #61c0bf;
+    color: #fff;
+    font-size: 18px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    background-color: #4fa29e;
+}
+
+.weather-info {
+    margin-top: 30px;
+    font-size: 20px;
+    animation: fadeIn 1.5s ease;
+}
+
+.loading {
+    font-size: 18px;
+    color: #ddd;
+    animation: fadeIn 1s ease-in-out;
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}

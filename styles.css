@@ -1,62 +1,88 @@
-const apiKey = "9df587fe16e54a6ab6f204233251704"; // Jouw API-sleutel van OpenWeatherMap
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #61c0bf, #6a8f7d);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: #fff;
+    overflow: hidden;
+}
 
-function getWeather() {
-    const location = document.getElementById("location").value;
+.container {
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    animation: fadeIn 1s ease;
+    width: 90%;
+    max-width: 500px;
+}
 
-    if (!location) {
-        alert("Voer een stad in!");
-        return;
-    }
+h1 {
+    margin-bottom: 20px;
+    font-size: 32px;
+}
 
-    // Toon laadindicator
-    document.getElementById("loading").style.display = "block";
-    document.getElementById("weatherInfo").style.display = "none";
-    document.getElementById("forecast").style.display = "none";
+input[type="text"] {
+    padding: 10px;
+    font-size: 18px;
+    border: none;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    width: 80%;
+    max-width: 300px;
+    transition: 0.3s;
+}
 
-    // Haal locatiegegevens op via OpenWeatherMap
-    const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${apiKey}&units=metric&lang=nl`;
-    const forecastUrl = `https://api.openweathermap.org/data/2.5/onecall?lat=52.379189&lon=4.900931&exclude=hourly,minutely&appid=${apiKey}&units=metric&lang=nl`;
+input[type="text"]:focus {
+    outline: none;
+    border: 2px solid #61c0bf;
+}
 
-    // Weergegevens
-    fetch(weatherUrl)
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById("loading").style.display = "none";
+button {
+    padding: 10px 20px;
+    background-color: #61c0bf;
+    color: #fff;
+    font-size: 18px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
 
-            // Toon de huidige weerinformatie
-            document.getElementById("cityName").innerText = data.name;
-            document.getElementById("weatherDescription").innerText = data.weather[0].description;
-            document.getElementById("temperature").innerText = `${data.main.temp}°C`;
-            document.getElementById("humidity").innerText = data.main.humidity;
-            document.getElementById("windSpeed").innerText = data.wind.speed;
+button:hover {
+    background-color: #4fa29e;
+}
 
-            document.getElementById("weatherInfo").style.display = "block";
+.weather-info {
+    margin-top: 30px;
+    font-size: 20px;
+    animation: fadeIn 1.5s ease;
+}
 
-            // Voeg de kaart toe
-            const map = L.map('map').setView([data.coord.lat, data.coord.lon], 13);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-            L.marker([data.coord.lat, data.coord.lon]).addTo(map)
-                .bindPopup(`<b>${data.name}</b>`)
-                .openPopup();
-        })
-        .catch(error => {
-            document.getElementById("loading").style.display = "none";
-            alert("Er is een fout opgetreden. Probeer het opnieuw.");
-        });
+.loading {
+    font-size: 18px;
+    color: #ddd;
+    animation: fadeIn 1s ease-in-out;
+}
 
-    // 7-Dagenvoorspelling
-    fetch(forecastUrl)
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById("forecast").style.display = "block";
-            const forecastTable = document.querySelector("#forecast table");
-            data.daily.forEach((day, index) => {
-                if (index < 7) {
-                    const row = forecastTable.insertRow();
-                    row.insertCell(0).innerText = new Date(day.dt * 1000).toLocaleDateString();
-                    row.insertCell(1).innerText = `${day.temp.day}°C`;
-                    row.insertCell(2).innerText = day.weather[0].description;
-                }
-            });
-        });
+#forecast table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+#forecast th, #forecast td {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
 }

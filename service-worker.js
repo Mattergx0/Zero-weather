@@ -1,27 +1,3 @@
-self.addEventListener("install", event => {
-  event.waitUntil(
-    caches.open("zero-weather-v1").then(cache =>
-      cache.addAll([
-        "./",
-        "index.html",
-        "styles.css",
-        "script.js",
-        "icon.png",
-        "manifest.json"
-      ])
-    )
-  );
-});
-
-self.addEventListener("fetch", event => {
-  event.respondWith(
-    caches.match(event.request).then(response =>
-      response || fetch(event.request)
-    )
-  );
-});
-
-// Service Worker voor offline functionaliteit
 const CACHE_NAME = 'zero-weather-cache-v1';
 const urlsToCache = [
   '/',
@@ -41,6 +17,9 @@ self.addEventListener('install', (event) => {
         console.log('Cache geopend');
         return cache.addAll(urlsToCache);
       })
+      .catch((error) => {
+        console.error('Fout bij het cachen van bestanden:', error);
+      })
   );
 });
 
@@ -49,7 +28,10 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
-        return response || fetch(event.request);
+        return response || fetch(event.request).catch(() => {
+          // Als fetch faalt en we zijn offline, geef een fallback bestand terug
+          return caches.match('/offline.html');
+        });
       })
   );
 });
@@ -70,6 +52,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+// Pushmelding ontvangen
 self.addEventListener('push', function(event) {
   const data = event.data.json();
   
@@ -84,9 +67,10 @@ self.addEventListener('push', function(event) {
   );
 });
 
+// Klikken op een pushmelding
 self.addEventListener('notificationclick', function(event) {
   event.notification.close();
   event.waitUntil(
-    clients.openWindow('https://jouwapp.url')
+    clients.openWindow('https://jouwapp.url') // Vervang dit door je werkelijke URL
   );
 });

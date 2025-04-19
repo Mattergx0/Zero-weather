@@ -210,16 +210,6 @@ body {
     margin-left: 10px;
 }
 
-/* Kaart stijlen */
-.map-container {
-    height: 200px;
-    margin: 20px;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: var(--shadow);
-    border: 1px solid var(--border-color);
-}
-
 /* Loading spinner */
 .loading {
     display: none;

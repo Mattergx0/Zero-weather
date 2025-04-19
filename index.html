@@ -1,65 +1,72 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#007AFF" />
-  <link rel="manifest" href="manifest.json" />
-  <link rel="apple-touch-icon" href="icon.png" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>Zero Weather</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="styles.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Zero Weather">
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="icon" href="icon.png">
+    <title>Zero Weather</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js" defer></script>
 </head>
 <body>
-  <div class="weather-app">
-    <div class="weather-header">
-      <div class="search-container">
-        <input type="text" id="location" placeholder="Zoek een locatie..." />
-        <button onclick="getWeather()"><i class="fas fa-search"></i></button>
-      </div>
-      <div class="location-info">
-        <h1 id="cityName">-</h1>
-        <p id="currentDate">-</p>
-      </div>
+    <div class="weather-app">
+        <div class="weather-header">
+            <div class="search-container">
+                <input type="text" id="location" placeholder="Zoek een locatie..." />
+                <button onclick="getWeather()"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="location-info">
+                <h1 id="cityName">-</h1>
+                <p id="currentDate">-</p>
+            </div>
+        </div>
+
+        <div class="weather-current">
+            <div class="temperature-container">
+                <div id="temperature">-</div>
+                <div class="weather-condition" id="weatherDescription">-</div>
+            </div>
+            <div class="weather-icon">
+                <canvas id="weatherCanvas" width="100" height="100"></canvas>
+            </div>
+        </div>
+
+        <div class="weather-details">
+            <div class="detail-item">
+                <i class="fas fa-tint"></i>
+                <span id="humidity">-</span>%
+            </div>
+            <div class="detail-item">
+                <i class="fas fa-wind"></i>
+                <span id="windSpeed">-</span> km/h
+            </div>
+            <div class="detail-item">
+                <i class="fas fa-temperature-low"></i>
+                <span id="feelsLike">-</span>°
+            </div>
+        </div>
+
+        <div class="hourly-forecast">
+            <div class="hourly-container" id="hourlyForecast">
+                <!-- Uurgegevens komen hier -->
+            </div>
+        </div>
+
+        <div class="daily-forecast">
+            <h3>10-Daagse voorspelling</h3>
+            <div class="daily-container" id="dailyForecast">
+                <!-- Daggegevens komen hier -->
+            </div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Gegevens laden...</p>
+        </div>
     </div>
-
-    <div class="weather-current">
-      <div class="temperature-container">
-        <div id="temperature">-</div>
-        <div class="weather-condition" id="weatherDescription">-</div>
-      </div>
-      <div class="weather-icon">
-        <canvas id="weatherCanvas" width="100" height="100"></canvas>
-      </div>
-    </div>
-
-    <div class="weather-details">
-      <div class="detail-item"><i class="fas fa-tint"></i><span id="humidity">-</span>%</div>
-      <div class="detail-item"><i class="fas fa-wind"></i><span id="windSpeed">-</span> km/h</div>
-      <div class="detail-item"><i class="fas fa-temperature-low"></i><span id="feelsLike">-</span>°</div>
-    </div>
-
-    <div class="hourly-forecast">
-      <div class="hourly-container" id="hourlyForecast"></div>
-    </div>
-
-    <div class="daily-forecast">
-      <h3>10-Daagse voorspelling</h3>
-      <div class="daily-container" id="dailyForecast"></div>
-    </div>
-
-    <div id="map" class="map-container"></div>
-
-    <div class="loading" id="loading">
-      <div class="spinner"></div>
-      <p>Gegevens laden...</p>
-    </div>
-  </div>
-
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script src="script.js"></script>
 </body>
 </html>

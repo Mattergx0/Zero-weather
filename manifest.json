@@ -1,14 +1,20 @@
 {
   "name": "Zero Weather",
-  "short_name": "Weather app",
-  "start_url": "index.html",
-  "display": "standalone",
-  "background_color": "#F7F7F7",
-  "theme_color": "#007AFF",
+  "short_name": "Zero Weather",
+  "description": "het meest accurate weer voor je locatie",
+  "start_url": "/",
+  "display": "standalone",  // Dit zorgt ervoor dat je app zonder de browserbalk verschijnt
+  "background_color": "#ffffff",  // Achtergrondkleur voor het opstartscherm
+  "theme_color": "#007AFF",  // Kleur voor de titelbalk van de app
   "icons": [
     {
       "src": "icon.png",
       "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
       "type": "image/png"
     }
   ]

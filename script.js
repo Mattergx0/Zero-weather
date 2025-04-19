@@ -2,7 +2,7 @@ const API_BASE = "https://geocoding-api.open-meteo.com/v1/search";
 const WEATHER_API = "https://api.open-meteo.com/v1/forecast";
 let map;
 
-// Functie om suggesties te tonen
+// Functie om suggesties te tonen tijdens het typen
 document.getElementById('location').addEventListener('input', async function () {
   const query = this.value;
   if (query.length < 2) return;
@@ -23,14 +23,14 @@ document.getElementById('location').addEventListener('input', async function () 
 });
 
 // Functie om weerdata op te halen voor een stad
-async function getWeather() {
-  const city = document.getElementById("location").value;
-  if (!city) return alert("Voer een stad in!");
+async function getWeather(city = '') {
+  const location = city || document.getElementById("location").value;
+  if (!location) return alert("Voer een stad in!");
 
   document.getElementById("loading").style.display = "flex";
 
   try {
-    const geoRes = await fetch(`${API_BASE}?name=${city}&count=1&language=nl&format=json`);
+    const geoRes = await fetch(`${API_BASE}?name=${location}&count=1&language=nl&format=json`);
     const geoData = await geoRes.json();
 
     if (!geoData.results || geoData.results.length === 0) {

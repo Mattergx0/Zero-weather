@@ -308,3 +308,18 @@ function translateWeatherCode(code) {
 document.getElementById('voiceButton').addEventListener('click', () => {
   startVoiceRecognition();
 });
+
+// Vraag toestemming voor pushnotificaties
+async function requestNotificationPermission() {
+  const permission = await Notification.requestPermission();
+  if (permission === "granted") {
+    console.log("Push notificaties zijn toegestaan!");
+  } else {
+    console.log("Push notificaties zijn niet toegestaan.");
+  }
+}
+
+// Roep deze functie aan zodra de app geladen is, of bij een specifieke actie
+if ('Notification' in window && 'serviceWorker' in navigator) {
+  requestNotificationPermission();
+}

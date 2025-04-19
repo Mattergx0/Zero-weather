@@ -2,21 +2,18 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#007AFF" />
-  <link rel="manifest" href="manifest.json" />
-  <link rel="apple-touch-icon" href="icon.png" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>Zero Weather</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weer App - KNMI</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="styles.css" />
-  <link rel="icon" href="icon.png" />
 </head>
 <body>
   <div class="weather-app">
     <div class="weather-header">
       <div class="search-container">
-        <input type="text" id="location" placeholder="Zoek een locatie..." />
+        <input type="text" id="location" list="suggestions" placeholder="Zoek een locatie..." />
+        <datalist id="suggestions"></datalist>
         <button onclick="getWeather()"><i class="fas fa-search"></i></button>
       </div>
       <div class="location-info">
@@ -36,18 +33,31 @@
     </div>
 
     <div class="weather-details">
-      <div class="detail-item"><i class="fas fa-tint"></i><span id="humidity">-</span>%</div>
-      <div class="detail-item"><i class="fas fa-wind"></i><span id="windSpeed">-</span> km/h</div>
-      <div class="detail-item"><i class="fas fa-temperature-low"></i><span id="feelsLike">-</span>°</div>
+      <div class="detail-item">
+        <i class="fas fa-tint"></i>
+        <span id="humidity">-</span>%
+      </div>
+      <div class="detail-item">
+        <i class="fas fa-wind"></i>
+        <span id="windSpeed">-</span> km/h
+      </div>
+      <div class="detail-item">
+        <i class="fas fa-temperature-low"></i>
+        <span id="feelsLike">-</span>°
+      </div>
     </div>
 
     <div class="hourly-forecast">
-      <div class="hourly-container" id="hourlyForecast"></div>
+      <div class="hourly-container" id="hourlyForecast">
+        <!-- Uurgegevens komen hier -->
+      </div>
     </div>
 
     <div class="daily-forecast">
       <h3>10-Daagse voorspelling</h3>
-      <div class="daily-container" id="dailyForecast"></div>
+      <div class="daily-container" id="dailyForecast">
+        <!-- Daggegevens komen hier -->
+      </div>
     </div>
 
     <div id="map" class="map-container"></div>
@@ -58,10 +68,7 @@
     </div>
   </div>
 
-  <button id="voiceButton">Vraag het weer via stem</button>
-
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="script.js"></script>
-  <script src="service-worker.js"></script>
 </body>
 </html>

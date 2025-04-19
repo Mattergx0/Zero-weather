@@ -1,3 +1,4 @@
+// Service Worker voor offline functionaliteit
 const CACHE_NAME = 'zero-weather-cache-v1';
 const urlsToCache = [
   '/',
@@ -6,7 +7,7 @@ const urlsToCache = [
   '/script.js',
   '/icon.png',
   '/manifest.json',
-  // Voeg hier alle andere resources toe die je wilt cachen
+  // Voeg hier andere resources toe die je wilt cachen
 ];
 
 // Installeren van de service worker
@@ -17,9 +18,6 @@ self.addEventListener('install', (event) => {
         console.log('Cache geopend');
         return cache.addAll(urlsToCache);
       })
-      .catch((error) => {
-        console.error('Fout bij het cachen van bestanden:', error);
-      })
   );
 });
 
@@ -28,10 +26,7 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
-        return response || fetch(event.request).catch(() => {
-          // Als fetch faalt en we zijn offline, geef een fallback bestand terug
-          return caches.match('/offline.html');
-        });
+        return response || fetch(event.request);
       })
   );
 });
@@ -52,7 +47,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Pushmelding ontvangen
+// Push notificaties
 self.addEventListener('push', function(event) {
   const data = event.data.json();
   
@@ -67,10 +62,10 @@ self.addEventListener('push', function(event) {
   );
 });
 
-// Klikken op een pushmelding
+// Klikken op een notificatie
 self.addEventListener('notificationclick', function(event) {
   event.notification.close();
   event.waitUntil(
-    clients.openWindow('https://jouwapp.url') // Vervang dit door je werkelijke URL
+    clients.openWindow('https://jouwapp.url')
   );
 });

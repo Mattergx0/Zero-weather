@@ -1,8 +1,8 @@
 {
   "name": "Zero Weather",
   "short_name": "Zero Weather",
-  "description": "Weer app met real-time informatie, voorspellingen en meer",
-  "start_url": "/index.html",
+  "description": "Een eenvoudige en mooie weer-app",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#FFFFFF",
   "theme_color": "#007AFF",

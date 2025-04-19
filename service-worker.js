@@ -1,4 +1,3 @@
-// Service Worker voor offline functionaliteit
 const CACHE_NAME = 'zero-weather-cache-v1';
 const urlsToCache = [
   '/',

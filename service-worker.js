@@ -1,22 +1,18 @@
-self.addEventListener("install", event => {
+self.addEventListener('push', function(event) {
+  let options = {
+    body: event.data.text(),
+    icon: 'icon.png',
+    badge: 'icon.png'
+  };
+
   event.waitUntil(
-    caches.open("zero-weather-v1").then(cache =>
-      cache.addAll([
-        "./",
-        "index.html",
-        "styles.css",
-        "script.js",
-        "icon.png",
-        "manifest.json"
-      ])
-    )
+    self.registration.showNotification('Weermelding', options)
   );
 });
 
-self.addEventListener("fetch", event => {
-  event.respondWith(
-    caches.match(event.request).then(response =>
-      response || fetch(event.request)
-    )
+self.addEventListener('notificationclick', function(event) {
+  event.notification.close();
+  event.waitUntil(
+    clients.openWindow('index.html')
   );
 });

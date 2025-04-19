@@ -65,6 +65,6 @@ self.addEventListener('push', function(event) {
 self.addEventListener('notificationclick', function(event) {
   event.notification.close();
   event.waitUntil(
-    clients.openWindow('https://jouwapp.url')
+    clients.openWindow('https://mattergx0.github.io/Zero-weather/')
   );
 });

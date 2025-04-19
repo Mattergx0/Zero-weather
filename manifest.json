@@ -1,10 +1,10 @@
 {
   "name": "Zero Weather",
   "short_name": "Zero Weather",
-  "description": "Een eenvoudige en mooie weer-app",
-  "start_url": "/",
+  "description": "De beste weersvoorspelling app",
+  "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#FFFFFF",
+  "background_color": "#ffffff",
   "theme_color": "#007AFF",
   "icons": [
     {

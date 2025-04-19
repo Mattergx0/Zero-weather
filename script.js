@@ -222,3 +222,89 @@ async function getWeatherFromCoordinates(lat, lon) {
   // Werk de UI bij met de weerdata
   updateWeatherUI(weatherData);
 }
+
+// Start de spraakherkenning voor de stemassistent
+function startVoiceRecognition() {
+  if (!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
+    alert('Spraakherkenning wordt niet ondersteund in deze browser.');
+    return;
+  }
+
+  const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+  recognition.lang = 'nl-NL'; // Nederlands
+  recognition.interimResults = false; // Alleen finale resultaten
+
+  recognition.start();
+
+  recognition.onstart = () => {
+    console.log("Spraakherkenning gestart...");
+  };
+
+  recognition.onresult = async (event) => {
+    const command = event.results[0][0].transcript.toLowerCase();
+    console.log("Spraakopdracht herkend:", command);
+
+    if (command.includes("weer") || command.includes("hoe is het weer") || command.includes("temperatuur")) {
+      // Haal de huidige locatie weer op en geef de weersvoorspelling
+      const location = await getUserLocation();
+      getWeatherForLocation(location.latitude, location.longitude);
+    } else {
+      alert("Sorry, ik begreep de vraag niet.");
+    }
+  };
+
+  recognition.onerror = (event) => {
+    console.error('Fout bij spraakherkenning:', event.error);
+  };
+}
+
+// Verkrijg de locatie van de gebruiker
+async function getUserLocation() {
+  return new Promise((resolve, reject) => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        resolve({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude
+        });
+      }, reject);
+    } else {
+      reject("Geolocatie wordt niet ondersteund.");
+    }
+  });
+}
+
+// Verkrijg het weer voor de opgegeven locatie
+async function getWeatherForLocation(latitude, longitude) {
+  const response = await fetch(`${WEATHER_API}?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weathercode&timezone=auto`);
+  const weatherData = await response.json();
+  const temperature = weatherData.current.temperature_2m;
+  const weatherDescription = translateWeatherCode(weatherData.current.weathercode);
+
+  // Spreek de weersvoorspelling uit
+  const speech = new SpeechSynthesisUtterance(`Het huidige weer is ${temperature} graden Celsius. Het weer is ${weatherDescription}.`);
+  window.speechSynthesis.speak(speech);
+}
+
+// Vertaal weathercode naar beschrijving
+function translateWeatherCode(code) {
+  const codes = {
+    0: "Helder",
+    1: "Overwegend helder",
+    2: "Gedeeltelijk bewolkt",
+    3: "Bewolkt",
+    45: "Mist",
+    48: "Rijp",
+    51: "Lichte motregen",
+    61: "Lichte regen",
+    71: "Lichte sneeuw",
+    95: "Onweer",
+    99: "Zware onweersbuien"
+  };
+  return codes[code] || "Onbekend";
+}
+
+// Voeg een knop toe voor de gebruiker om spraakherkenning te starten
+document.getElementById('voiceButton').addEventListener('click', () => {
+  startVoiceRecognition();
+});

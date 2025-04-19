@@ -1,0 +1,10 @@
+MIT License
+
+Copyright (c) 2025 [Mattergx0]
+
+Hierbij wordt toestemming verleend, gratis, aan iedereen die een kopie van deze software en de bijbehorende documentatiebestanden (de "Software") mag gebruiken, onder de volgende voorwaarden:
+
+De bovenstaande copyrightvermelding en deze toestemming moeten in alle kopieën van de Software worden opgenomen.
+
+DE SOFTWARE WORDT GELEVERD "AS-IS", ZONDER ENIGE GARANTIE VAN ENIGE SOORT, UITDRUKKELIJK OF IMPLICIET, INCLUSIEF MAAR NIET BEPERKT TOT DE IMPLICIETE GARANTIES VAN VERKOOPBAARHEID, GESCHIKTHEID VOOR EEN BEPAALD DOEL OF NIET-INBREUK. IN GEEN GEVAL ZAL DE AUTEUR OF HOUDER VAN HET COPYRIGHT AANSPRAKELIJK ZIJN VOOR ENIGE VORDERING, SCHADES OF ANDERE AANSPRAKELIJKHEDEN, HETZELFDE NU IN CONTRACT, ONRECHTMATIGE DAAD OF ANDERSZINS, DIE VOORTVLOEIEN UIT, OF IN VERBAND STAAN MET DE SOFTWARE OF HET GEBRUIK ERVAN.
+

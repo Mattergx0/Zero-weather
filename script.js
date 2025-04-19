@@ -1,20 +1,20 @@
-// KNMI API configuratie
-const API_BASE_URL = "https://weerlive.nl/api/";
-const API_KEY = "8a11fa30ad"; // Vervang met jouw KNMI API key
+// WeatherAPI configuratie
+const API_BASE_URL = "https://api.weatherapi.com/v1/";
+const API_KEY = "9df587fe16e54a6ab6f204233251704"; // Vervang dit met jouw eigen API key van weatherapi.com
 
-// Weer iconen mapping
+// Weer iconen mapping (optioneel, we gebruiken de icoon-URL van WeatherAPI)
 const weatherIcons = {
-    "zonnig": "☀️",
-    "bewolkt": "☁️",
-    "regen": "🌧️",
-    "sneeuw": "❄️",
-    "onweer": "⛈️",
-    "mist": "🌫️"
+    "Sunny": "☀️",
+    "Cloudy": "☁️",
+    "Rain": "🌧️",
+    "Snow": "❄️",
+    "Thunderstorm": "⛈️",
+    "Fog": "🌫️"
 };
 
 function getWeather() {
     const location = document.getElementById("location").value.trim();
-    
+
     if (!location) {
         alert("Voer een locatie in");
         return;
@@ -22,14 +22,13 @@ function getWeather() {
 
     showLoading(true);
 
-    // KNMI API aanroep
-    fetch(`${API_BASE_URL}weerlive.php?key=${API_KEY}&locatie=${encodeURIComponent(location)}`)
+    // WeatherAPI aanroep
+    fetch(`${API_BASE_URL}current.json?key=${API_KEY}&q=${encodeURIComponent(location)}&lang=nl`)
         .then(response => response.json())
         .then(data => {
-            if (data.liveweer && data.liveweer.length > 0) {
-                const weatherData = data.liveweer[0];
-                updateCurrentWeather(weatherData);
-                updateMap(weatherData);
+            if (data && data.location && data.current) {
+                updateCurrentWeather(data);
+                updateMap(data);
             } else {
                 throw new Error("Geen data gevonden");
             }
@@ -42,58 +41,63 @@ function getWeather() {
 }
 
 function updateCurrentWeather(data) {
-    // Update huidige weer
-    document.getElementById("cityName").textContent = data.plaats;
-    document.getElementById("temperature").textContent = `${data.temp}°`;
-    document.getElementById("weatherDescription").textContent = data.samenv;
-    document.getElementById("humidity").textContent = data.lv;
-    document.getElementById("windSpeed").textContent = data.windkmh;
-    document.getElementById("feelsLike").textContent = data.gtemp;
-    
-    // Update datum
-    const now = new Date();
-    document.getElementById("currentDate").textContent = now.toLocaleDateString('nl-NL', { 
-        weekday: 'long', 
-        day: 'numeric', 
-        month: 'long' 
+    const location = data.location;
+    const current = data.current;
+
+    document.getElementById("cityName").textContent = location.name;
+    document.getElementById("temperature").textContent = `${current.temp_c}°`;
+    document.getElementById("weatherDescription").textContent = current.condition.text;
+    document.getElementById("humidity").textContent = current.humidity + "%";
+    document.getElementById("windSpeed").textContent = current.wind_kph + " km/h";
+    document.getElementById("feelsLike").textContent = current.feelslike_c + "°";
+
+    // Datum
+    const now = new Date(location.localtime);
+    document.getElementById("currentDate").textContent = now.toLocaleDateString('nl-NL', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long'
     });
-    
-    // Update weericoon (simpele versie)
+
+    // Simpele icoon tonen
     const weatherCanvas = document.getElementById("weatherCanvas");
     const ctx = weatherCanvas.getContext("2d");
-    // Hier zou je een complexere icoon rendering kunnen doen
+    const icon = new Image();
+    icon.src = "https:" + current.condition.icon;
+    icon.onload = () => {
+        ctx.clearRect(0, 0, weatherCanvas.width, weatherCanvas.height);
+        ctx.drawImage(icon, 10, 10, 64, 64); // voorbeeldpositie
+    };
 }
 
 function updateMap(data) {
-    if (data.lat && data.lon) {
-        const map = L.map('map').setView([data.lat, data.lon], 10);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
-        L.marker([data.lat, data.lon]).addTo(map)
-            .bindPopup(`<b>${data.plaats}</b><br>${data.temp}°C`)
-            .openPopup();
-    }
+    const lat = data.location.lat;
+    const lon = data.location.lon;
+
+    const map = L.map('map').setView([lat, lon], 10);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+    L.marker([lat, lon]).addTo(map)
+        .bindPopup(`<b>${data.location.name}</b><br>${data.current.temp_c}°C`)
+        .openPopup();
 }
 
 function showLoading(show) {
     document.getElementById("loading").style.display = show ? "flex" : "none";
 }
 
-// Initialisatie
-document.addEventListener('DOMContentLoaded', function() {
-    // Event listener voor enter toets
-    document.getElementById("location").addEventListener('keypress', function(e) {
+document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById("location").addEventListener('keypress', function (e) {
         if (e.key === 'Enter') {
             getWeather();
         }
     });
-    
-    // Toon huidige datum
+
     const now = new Date();
-    document.getElementById("currentDate").textContent = now.toLocaleDateString('nl-NL', { 
-        weekday: 'long', 
-        day: 'numeric', 
-        month: 'long' 
+    document.getElementById("currentDate").textContent = now.toLocaleDateString('nl-NL', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long'
     });
 });

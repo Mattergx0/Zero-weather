@@ -22,7 +22,7 @@ document.getElementById('location').addEventListener('input', async function () 
   }
 });
 
-// Functie om weerdata op te halen
+// Functie om weerdata op te halen voor een stad
 async function getWeather() {
   const city = document.getElementById("location").value;
   if (!city) return alert("Voer een stad in!");
@@ -116,6 +116,52 @@ function updateDailyForecast(daily) {
       </div>
     `;
   }
+}
+
+// Geolocatie om automatisch de locatie te vinden
+if (navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition(async function (position) {
+    const lat = position.coords.latitude;
+    const lon = position.coords.longitude;
+
+    // Gebruik de locatie om het weer op te halen
+    const geoRes = await fetch(`${API_BASE}?latitude=${lat}&longitude=${lon}&count=1&language=nl&format=json`);
+    const geoData = await geoRes.json();
+    const { latitude, longitude, name, country } = geoData.results[0];
+
+    const weatherRes = await fetch(`${WEATHER_API}?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weathercode,wind_speed_10m,relative_humidity_2m,apparent_temperature&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto`);
+    const weatherData = await weatherRes.json();
+
+    // Update UI
+    document.getElementById("cityName").textContent = `${name}, ${country}`;
+    document.getElementById("currentDate").textContent = new Date().toLocaleDateString("nl-NL", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+    document.getElementById("temperature").textContent = `${weatherData.current.temperature_2m}°C`;
+    document.getElementById("weatherDescription").textContent = translateWeatherCode(weatherData.current.weathercode);
+    document.getElementById("humidity").textContent = weatherData.current.relative_humidity_2m;
+    document.getElementById("windSpeed").textContent = weatherData.current.wind_speed_10m;
+    document.getElementById("feelsLike").textContent = weatherData.current.apparent_temperature;
+
+    updateDailyForecast(weatherData.daily);
+
+    // Map
+    if (!map) {
+      map = L.map('map').setView([latitude, longitude], 8);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18
+      }).addTo(map);
+    } else {
+      map.setView([latitude, longitude], 8);
+    }
+
+    L.marker([latitude, longitude]).addTo(map)
+      .bindPopup(`${name}, ${country}`)
+      .openPopup();
+
+  }, function () {
+    alert("Locatie kan niet worden bepaald.");
+  });
+} else {
+  alert("Geolocatie wordt niet ondersteund door je browser.");
 }
 
 if ('serviceWorker' in navigator) {

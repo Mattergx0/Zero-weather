@@ -118,7 +118,7 @@ function updateDailyForecast(daily) {
   }
 }
 
-// Geolocatie om automatisch de locatie te vinden
+// Geolocatie om automatisch de locatie te vinden bij openen van de app
 if (navigator.geolocation) {
   navigator.geolocation.getCurrentPosition(async function (position) {
     const lat = position.coords.latitude;

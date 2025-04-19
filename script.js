@@ -176,3 +176,49 @@ if ('serviceWorker' in navigator) {
       });
   });
 }
+
+// Opslaan van de laatst bekende locatie in localStorage
+function saveLocationToLocalStorage(lat, lon) {
+  localStorage.setItem('lastLocation', JSON.stringify({ lat, lon }));
+}
+
+// Ophalen van de laatst bekende locatie uit localStorage
+function getLastLocationFromLocalStorage() {
+  return JSON.parse(localStorage.getItem('lastLocation'));
+}
+
+// Controleren of er een internetverbinding is
+function checkOnlineStatus() {
+  if (navigator.onLine) {
+    console.log("Er is een internetverbinding.");
+    return true;
+  } else {
+    console.log("Geen internetverbinding.");
+    return false;
+  }
+}
+
+// Bij het openen van de app, controleren we of we offline zijn en de laatst bekende locatie weergeven
+async function displayWeather() {
+  if (!checkOnlineStatus()) {
+    const lastLocation = getLastLocationFromLocalStorage();
+    if (lastLocation) {
+      console.log("Laatste locatie gevonden:", lastLocation);
+      // Hier kun je weerdata ophalen voor de laatst bekende locatie
+      getWeatherFromCoordinates(lastLocation.lat, lastLocation.lon);
+    } else {
+      alert("Geen internet en geen opgeslagen locatie gevonden.");
+    }
+  } else {
+    // Haal weerdata op met de huidige locatie
+    getWeather();
+  }
+}
+
+// Functie om weerdata op te halen voor de laatst bekende locatie
+async function getWeatherFromCoordinates(lat, lon) {
+  const response = await fetch(`${WEATHER_API}?latitude=${lat}&longitude=${lon}&current=temperature_2m,weathercode,wind_speed_10m,relative_humidity_2m,apparent_temperature&timezone=auto`);
+  const weatherData = await response.json();
+  // Werk de UI bij met de weerdata
+  updateWeatherUI(weatherData);
+}

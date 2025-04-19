@@ -248,6 +248,7 @@ body {
     100% { transform: rotate(360deg); }
 }
 
+/* Responsive aanpassingen */
 @media (max-width: 400px) {
     .temperature-container {
         font-size: 56px;

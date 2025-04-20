@@ -1,22 +1,6 @@
-const CACHE_NAME = 'zeroweather-v1';
-const ASSETS = [
-  '/',
-  '/index.html',
-  '/styles.css',
-  '/icon.png',
-  '/script.js'
-];
-
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(ASSETS))
-  );
-});
-
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => response || fetch(event.request))
-  );
+// service-worker.js
+self.addEventListener('install', (e) => {
+    e.waitUntil(caches.open('zeroweather').then((cache) => 
+        cache.addAll(['/', '/index.html', '/icon.png'])
+    ));
 });

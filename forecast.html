@@ -3,22 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Zero Weather - Voorspelling</title>
-  <link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="style.css" />
+  <title>10-Daagse Voorspelling</title>
 </head>
 <body>
-  <header class="navbar">
-    <a href="index.html">🏠 Home</a>
-    <a href="map.html">🗺️ Kaart</a>
-  </header>
+  <div class="weather-app">
+    <header class="weather-header">
+      <h1>10-Daagse Voorspelling</h1>
+    </header>
 
-  <main>
-    <h1>📅 10-daagse Voorspelling</h1>
-    <div class="daily-container" id="forecastContainer">
-      <!-- JS vult hier de data -->
-    </div>
-  </main>
+    <section class="daily-forecast">
+      <div class="daily-container" id="forecastContainer">
+        <!-- Weergegevens worden hier geladen -->
+      </div>
+    </section>
+  </div>
 
   <script src="forecast.js"></script>
 </body>

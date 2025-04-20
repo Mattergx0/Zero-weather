@@ -20,11 +20,16 @@ async function getForecast(city) {
     const date = new Date(day.dt * 1000).toLocaleDateString('nl-NL', { weekday: 'long' });
     const max = Math.round(day.temp.max);
     const min = Math.round(day.temp.min);
+    const icon = day.weather[0].icon;
+
     forecastContainer.innerHTML += `
       <div class="daily-item">
-        <strong>${date}</strong>
-        <p>${day.weather[0].description}</p>
-        <p>🌡️ Max: ${max}°C, Min: ${min}°C</p>
+        <div class="day-name">${date}</div>
+        <div class="day-icon"><img src="https://openweathermap.org/img/wn/${icon}@2x.png" alt=""></div>
+        <div class="day-temp">
+          <span class="max-temp">${max}°</span>
+          <span class="min-temp">${min}°</span>
+        </div>
       </div>
     `;
   });

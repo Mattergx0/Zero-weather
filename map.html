@@ -3,28 +3,34 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Zero Weather - Kaart</title>
-  <link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="style.css" />
+  <title>Weer Map</title>
 </head>
 <body>
-  <header class="navbar">
-    <a href="index.html">🏠 Home</a>
-    <a href="forecast.html">📅 Voorspelling</a>
-  </header>
+  <div class="map-container">
+    <h3>Weer in de regio</h3>
+    <div id="map"></div>
+  </div>
 
-  <main class="map-page">
-    <h1>🌧️ Weerkaart</h1>
-    <iframe
-      src="https://openweathermap.org/weathermap?basemap=map&cities=false&layer=precipitation&lat=52.37&lon=4.89&zoom=7"
-      width="100%"
-      height="600px"
-      style="border:none;"
-      loading="lazy"
-    ></iframe>
-    <p style="text-align:center; font-size:14px;">Kaart: OpenWeatherMap</p>
-  </main>
+  <script>
+    // Map functie inladen
+    function initMap() {
+        const map = L.map('map').setView([52.3676, 4.9041], 12);  // Initialiseer kaart, Amsterdam als voorbeeld
 
-  <script src="map.js"></script>
+        // OpenStreetMap tiles toevoegen
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Voorbeeld van weerdata (regen)
+        L.marker([52.3676, 4.9041]).addTo(map)
+            .bindPopup("Regenbuien in de buurt!")
+            .openPopup();
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      initMap();
+    });
+  </script>
 </body>
 </html>

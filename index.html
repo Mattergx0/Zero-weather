@@ -1,39 +1,75 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#007AFF" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="icon.png" type="image/png" />
   <title>Zero Weather</title>
-  <link rel="stylesheet" href="styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <div id="app">
-    <h1 id="cityName">Stad, Land</h1>
-    <input type="text" id="location" placeholder="Voer stad in">
-    <button onclick="getWeather()">Zoek Weer</button>
-    <div id="loading" style="display:none;">Laden...</div>
+  <div class="weather-app">
+    <header class="weather-header">
+      <form id="searchForm" class="search-container">
+        <input type="text" id="searchInput" placeholder="Zoek een stad..." />
+        <button type="submit">🔍</button>
+      </form>
+      <div class="location-info">
+        <h1 id="cityName">Laden...</h1>
+        <p id="weatherDescription">Weerstatus</p>
+      </div>
+    </header>
 
-    <div id="weather-info">
-      <p id="currentDate"></p>
-      <p id="temperature"></p>
-      <p id="weatherDescription"></p>
-      <p id="humidity"></p>
-      <p id="windSpeed"></p>
-      <p id="feelsLike"></p>
-    </div>
+    <section class="weather-current">
+      <div class="temperature-container" id="temperature">--°C</div>
+      <div class="weather-icon" id="weatherIcon">
+        <!-- icoon komt hier -->
+      </div>
+    </section>
 
-    <!-- Toevoeging van grafieken -->
-    <div class="weather-charts">
-      <canvas id="temperatureChart"></canvas>
-      <canvas id="humidityChart"></canvas>
-      <canvas id="windSpeedChart"></canvas>
-    </div>
+    <section class="weather-details">
+      <div class="detail-item">
+        <i class="fas fa-tint"></i>
+        <span id="humidity">--%</span>
+        <p>Luchtvochtigheid</p>
+      </div>
+      <div class="detail-item">
+        <i class="fas fa-wind"></i>
+        <span id="windSpeed">-- m/s</span>
+        <p>Wind</p>
+      </div>
+      <div class="detail-item">
+        <i class="fas fa-tachometer-alt"></i>
+        <span id="pressure">-- hPa</span>
+        <p>Luchtdruk</p>
+      </div>
+    </section>
 
-    <div id="map" style="height: 300px;"></div>
+    <section class="daily-forecast">
+      <h3>10-daagse verwachting</h3>
+      <div class="daily-container" id="forecastContainer">
+        <!-- voorspellingen worden geladen met JS -->
+      </div>
+    </section>
   </div>
 
-  <script src="service-worker.js"></script>
-  <script src="script.js"></script>
+  <div class="loading">
+    <div class="spinner"></div>
+    <p>Weerdata ophalen...</p>
+  </div>
+
+  <!-- FontAwesome voor icons -->
+  <script src="https://kit.fontawesome.com/a2d3e1f10b.js" crossorigin="anonymous"></script>
+  <!-- Jouw hoofdscript -->
+  <script src="app.js"></script>
+  <!-- Service worker -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("service-worker.js")
+        .then(() => console.log("Service Worker geregistreerd"));
+    }
+  </script>
 </body>
 </html>

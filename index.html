@@ -33,7 +33,40 @@
             </div>
         </header>
 
-        <!-- ... (zelfde weer content als voorheen) ... -->
+        <div class="weather-current">
+            <div class="temperature-container">
+                <span id="current-temp">--°</span>
+                <div class="weather-condition" id="condition">--</div>
+            </div>
+            <div class="weather-icon">
+                <canvas id="weather-icon"></canvas>
+            </div>
+        </div>
+
+        <div class="weather-details">
+            <div class="detail-item">
+                <i>💧</i>
+                <span id="humidity">--%</span>
+                <p>Vochtigheid</p>
+            </div>
+            <div class="detail-item">
+                <i>🌬️</i>
+                <span id="wind">--km/u</span>
+                <p>Wind</p>
+            </div>
+            <div class="detail-item">
+                <i>🌧️</i>
+                <span id="rain">--mm</span>
+                <p>Regen</p>
+            </div>
+        </div>
+
+        <div class="daily-forecast">
+            <h3>10-daagse voorspelling</h3>
+            <div class="daily-container" id="forecast-container"></div>
+        </div>
+
+        <button class="nav-button" onclick="showPage('map-page')">Bekijk regenkaart</button>
     </div>
 
     <!-- Map Pagina -->
@@ -48,35 +81,98 @@
     </div>
 
     <script>
-        // Welcome screen logic
+        const API_KEY = '51449fa3b241b52737fe2b3626795957';
+        let map;
+
+        // Welcome Screen
         setTimeout(() => {
             document.getElementById('welcome-screen').classList.remove('active');
         }, 2000);
 
-        // Aangepaste map initialisatie
+        // Pagina navigatie
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        // Laadscherm
+        function toggleLoading(show) {
+            document.getElementById('loading').style.display = show ? 'flex' : 'none';
+        }
+
+        // Geolocatie
+        window.onload = function() {
+            toggleLoading(true);
+            if(navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    getWeather(position.coords.latitude, position.coords.longitude);
+                    initMap(position.coords.latitude, position.coords.longitude);
+                }, error => {
+                    console.error('Geolocatie fout:', error);
+                    toggleLoading(false);
+                });
+            }
+        }
+
+        // Weer data
+        async function getWeather(lat, lon) {
+            try {
+                const [current, forecast] = await Promise.all([
+                    fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=nl`),
+                    fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=nl`)
+                ]);
+
+                const currentData = await current.json();
+                const forecastData = await forecast.json();
+
+                // Update huidig weer
+                document.getElementById('current-temp').textContent = `${Math.round(currentData.main.temp)}°`;
+                document.getElementById('condition').textContent = currentData.weather[0].description;
+                document.getElementById('humidity').textContent = `${currentData.main.humidity}%`;
+                document.getElementById('wind').textContent = `${Math.round(currentData.wind.speed * 3.6)} km/u`;
+                document.getElementById('rain').textContent = currentData.rain ? `${currentData.rain['1h']}mm` : '0mm';
+
+                // Update voorspelling
+                const forecastContainer = document.getElementById('forecast-container');
+                forecastContainer.innerHTML = '';
+                forecastData.list.slice(0, 10).forEach(forecast => {
+                    const date = new Date(forecast.dt * 1000);
+                    const dayElement = document.createElement('div');
+                    dayElement.className = 'daily-item';
+                    dayElement.innerHTML = `
+                        <span class="day-name">${date.toLocaleDateString('nl', {weekday: 'short'})}</span>
+                        <span class="day-icon">${getWeatherIcon(forecast.weather[0].id)}</span>
+                        <div class="day-temp">
+                            <span class="max-temp">${Math.round(forecast.main.temp_max)}°</span>
+                            <span class="min-temp">${Math.round(forecast.main.temp_min)}°</span>
+                        </div>
+                    `;
+                    forecastContainer.appendChild(dayElement);
+                });
+                
+                toggleLoading(false);
+            } catch (error) {
+                console.error('Fout bij ophalen weer:', error);
+                toggleLoading(false);
+            }
+        }
+
+        // Kaart initialisatie
         function initMap(lat, lon) {
             if(map) map.remove();
             
             map = L.map('map').setView([lat, lon], 8);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+            L.tileLayer(`https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=${API_KEY}`).addTo(map);
             
-            // Basis kaartlaag
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap'
-            }).addTo(map);
-
-            // Regenradar laag
-            L.tileLayer(`https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=${API_KEY}`, {
-                opacity: 0.6,
-                attribution: 'Rain data © OpenWeatherMap'
-            }).addTo(map);
-
-            // Locatie marker
             L.marker([lat, lon]).addTo(map)
                 .bindPopup('Huidige locatie')
                 .openPopup();
         }
 
-        // Zoekfunctie aanpassing
+        // Zoekfunctie
         async function searchLocation() {
             const input = document.getElementById('search-input');
             toggleLoading(true);
@@ -87,17 +183,10 @@
                 );
                 const data = await response.json();
                 if(data.length > 0) {
-                    const lat = data[0].lat;
-                    const lon = data[0].lon;
-                    
+                    const [lat, lon] = [data[0].lat, data[0].lon];
                     getWeather(lat, lon);
                     initMap(lat, lon);
-                    
-                    // Pan naar nieuwe locatie
                     map.setView([lat, lon], 10);
-                    L.marker([lat, lon]).addTo(map)
-                        .bindPopup(`Gevonden locatie: ${data[0].name}`)
-                        .openPopup();
                 }
             } catch (error) {
                 console.error('Zoekfout:', error);
@@ -105,6 +194,24 @@
                 toggleLoading(false);
             }
         }
+
+        // Weer iconen
+        function getWeatherIcon(code) {
+            if(code >= 200 && code < 300) return '⛈️';
+            if(code >= 300 && code < 600) return '🌧️';
+            if(code >= 600 && code < 700) return '❄️';
+            if(code === 800) return '☀️';
+            if(code > 800) return '☁️';
+            return '🌤️';
+        }
+
+        // Service Worker
+        if('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js')
+                .then(() => console.log('Service Worker geregistreerd'))
+                .catch(err => console.error('Service Worker fout:', err));
+        }
     </script>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 </body>
 </html>

@@ -1,75 +1,194 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#007AFF" />
-  <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="style.css" />
-  <link rel="icon" href="icon.png" type="image/png" />
-  <title>Zero Weather</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weer App</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
+    <style>
+        /* Je meegegeven CSS hier */
+        :root { ... }
+        /* ... Alle CSS die je hebt gegeven ... */
+    </style>
 </head>
 <body>
-  <div class="weather-app">
-    <header class="weather-header">
-      <form id="searchForm" class="search-container">
-        <input type="text" id="searchInput" placeholder="Zoek een stad..." />
-        <button type="submit">🔍</button>
-      </form>
-      <div class="location-info">
-        <h1 id="cityName">Laden...</h1>
-        <p id="weatherDescription">Weerstatus</p>
-      </div>
-    </header>
+    <!-- Loading screen -->
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>Gegevens laden...</p>
+    </div>
 
-    <section class="weather-current">
-      <div class="temperature-container" id="temperature">--°C</div>
-      <div class="weather-icon" id="weatherIcon">
-        <!-- icoon komt hier -->
-      </div>
-    </section>
+    <!-- Home Pagina -->
+    <div id="home-page" class="page active">
+        <header class="weather-header">
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="Zoek locatie...">
+                <button onclick="searchLocation()">🔍</button>
+            </div>
+        </header>
 
-    <section class="weather-details">
-      <div class="detail-item">
-        <i class="fas fa-tint"></i>
-        <span id="humidity">--%</span>
-        <p>Luchtvochtigheid</p>
-      </div>
-      <div class="detail-item">
-        <i class="fas fa-wind"></i>
-        <span id="windSpeed">-- m/s</span>
-        <p>Wind</p>
-      </div>
-      <div class="detail-item">
-        <i class="fas fa-tachometer-alt"></i>
-        <span id="pressure">-- hPa</span>
-        <p>Luchtdruk</p>
-      </div>
-    </section>
+        <div class="weather-current">
+            <div class="temperature-container">
+                <span id="current-temp">--°</span>
+                <div class="weather-condition" id="condition">--</div>
+            </div>
+            <div class="weather-icon">
+                <canvas id="weather-icon"></canvas>
+            </div>
+        </div>
 
-    <section class="daily-forecast">
-      <h3>10-daagse verwachting</h3>
-      <div class="daily-container" id="forecastContainer">
-        <!-- voorspellingen worden geladen met JS -->
-      </div>
-    </section>
-  </div>
+        <div class="weather-details">
+            <div class="detail-item">
+                <i>💧</i>
+                <span id="humidity">--%</span>
+                <p>Vochtigheid</p>
+            </div>
+            <div class="detail-item">
+                <i>🌬️</i>
+                <span id="wind">--km/u</span>
+                <p>Wind</p>
+            </div>
+            <div class="detail-item">
+                <i>🌧️</i>
+                <span id="rain">--mm</span>
+                <p>Regen</p>
+            </div>
+        </div>
 
-  <div class="loading">
-    <div class="spinner"></div>
-    <p>Weerdata ophalen...</p>
-  </div>
+        <div class="daily-forecast">
+            <h3>10-daagse voorspelling</h3>
+            <div class="daily-container" id="forecast-container"></div>
+        </div>
 
-  <!-- FontAwesome voor icons -->
-  <script src="https://kit.fontawesome.com/a2d3e1f10b.js" crossorigin="anonymous"></script>
-  <!-- Jouw hoofdscript -->
-  <script src="app.js"></script>
-  <!-- Service worker -->
-  <script>
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("service-worker.js")
-        .then(() => console.log("Service Worker geregistreerd"));
-    }
-  </script>
+        <button class="nav-button" onclick="showPage('map-page')">Bekijk regenkaart</button>
+    </div>
+
+    <!-- Map Pagina -->
+    <div id="map-page" class="page">
+        <div class="map-container">
+            <div id="map"></div>
+        </div>
+        <button class="nav-button" onclick="showPage('home-page')">Terug naar weer</button>
+    </div>
+
+    <script>
+        const API_KEY = '6efb9bc81d3e98b4397d97a5294cb407';
+        let map;
+
+        // Pagina navigatie
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        // Laad scherm
+        function toggleLoading(show) {
+            document.getElementById('loading').style.display = show ? 'flex' : 'none';
+        }
+
+        // Initiele locatie ophalen
+        window.onload = function() {
+            toggleLoading(true);
+            if(navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    getWeather(position.coords.latitude, position.coords.longitude);
+                    initMap(position.coords.latitude, position.coords.longitude);
+                });
+            }
+        }
+
+        // Weer data ophalen
+        async function getWeather(lat, lon) {
+            try {
+                const response = await fetch(
+                    `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=nl`
+                );
+                const data = await response.json();
+                
+                document.getElementById('current-temp').textContent = `${Math.round(data.main.temp)}°`;
+                document.getElementById('condition').textContent = data.weather[0].description;
+                document.getElementById('humidity').textContent = `${data.main.humidity}%`;
+                document.getElementById('wind').textContent = `${Math.round(data.wind.speed * 3.6)} km/u`;
+                document.getElementById('rain').textContent = data.rain ? `${data.rain['1h']}mm` : '0mm';
+
+                getForecast(lat, lon);
+            } catch (error) {
+                console.error('Fout bij ophalen weer:', error);
+            }
+        }
+
+        // Voorspelling ophalen
+        async function getForecast(lat, lon) {
+            try {
+                const response = await fetch(
+                    `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=nl`
+                );
+                const data = await response.json();
+                const forecastContainer = document.getElementById('forecast-container');
+                forecastContainer.innerHTML = '';
+
+                for(let i = 0; i < 10; i++) {
+                    const forecast = data.list[i * 8];
+                    const date = new Date(forecast.dt * 1000);
+                    
+                    const dayElement = document.createElement('div');
+                    dayElement.className = 'daily-item';
+                    dayElement.innerHTML = `
+                        <span class="day-name">${date.toLocaleDateString('nl', {weekday: 'short'})}</span>
+                        <span class="day-icon">${getWeatherIcon(forecast.weather[0].id)}</span>
+                        <div class="day-temp">
+                            <span class="max-temp">${Math.round(forecast.main.temp_max)}°</span>
+                            <span class="min-temp">${Math.round(forecast.main.temp_min)}°</span>
+                        </div>
+                    `;
+                    forecastContainer.appendChild(dayElement);
+                }
+                toggleLoading(false);
+            } catch (error) {
+                console.error('Fout bij voorspelling:', error);
+            }
+        }
+
+        // Map initialiseren
+        function initMap(lat, lon) {
+            map = L.map('map').setView([lat, lon], 8);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+            
+            // Regenlaag
+            L.tileLayer(`https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=${API_KEY}`).addTo(map);
+        }
+
+        // Zoek functionaliteit
+        async function searchLocation() {
+            const input = document.getElementById('search-input');
+            toggleLoading(true);
+            
+            try {
+                const response = await fetch(
+                    `https://api.openweathermap.org/geo/1.0/direct?q=${input.value}&limit=1&appid=${API_KEY}`
+                );
+                const data = await response.json();
+                if(data.length > 0) {
+                    getWeather(data[0].lat, data[0].lon);
+                    map.setView([data[0].lat, data[0].lon], 8);
+                }
+            } catch (error) {
+                console.error('Zoekfout:', error);
+            }
+        }
+
+        // Weer iconen
+        function getWeatherIcon(code) {
+            if(code >= 200 && code < 300) return '⛈️';
+            if(code >= 300 && code < 600) return '🌧️';
+            if(code >= 600 && code < 700) return '❄️';
+            if(code === 800) return '☀️';
+            if(code > 800) return '☁️';
+            return '🌤️';
+        }
+    </script>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 </body>
 </html>

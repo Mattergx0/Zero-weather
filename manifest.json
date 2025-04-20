@@ -1,14 +1,16 @@
-// manifest.json
 {
     "name": "Zero Weather",
     "short_name": "Zero Weather",
     "start_url": ".",
     "display": "standalone",
-    "icons": [{
-        "src": "icon.png",
-        "sizes": "192x192 512x512",
-        "type": "image/png"
-    }],
     "background_color": "#F7F7F7",
-    "theme_color": "#007AFF"
+    "theme_color": "#007AFF",
+    "icons": [
+        {
+            "src": "icon.png",
+            "sizes": "192x192 512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
 }

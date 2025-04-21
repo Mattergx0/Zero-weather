@@ -10,7 +10,7 @@
     --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-/* Algemene stijlen */
+/* Algemene Stijlen */
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     background-color: var(--background);
@@ -21,12 +21,147 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
-/* Header stijlen */
+/* Welcome Screen */
+#welcome-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, #00081d, #00172d);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.5s;
+    pointer-events: none;
+}
+
+#welcome-screen.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.welcome-logo {
+    width: 120px;
+    height: 120px;
+    margin: 20px 0;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+/* Loading Screen */
+.loading {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    justify-content: center;
+    align-items: center;
+    z-index: 9998;
+    backdrop-filter: blur(10px);
+}
+
+.loader {
+    position: relative;
+    width: 200px;
+    height: 200px;
+}
+
+.meteor {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background: url('icon.png') center/contain no-repeat;
+    animation: meteorOrbit 3s linear infinite;
+}
+
+@keyframes meteorOrbit {
+    0% { transform: rotate(0deg) translateX(100px) rotate(0deg); opacity: 0.8; }
+    100% { transform: rotate(360deg) translateX(100px) rotate(-360deg); opacity: 0; }
+}
+
+.orbit {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 2px solid rgba(0, 122, 255, 0.2);
+    border-radius: 50%;
+}
+
+.planet {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    background: var(--primary-blue);
+    border-radius: 50%;
+    transform: translateX(-50%);
+    box-shadow: 0 0 20px rgba(0, 122, 255, 0.5);
+    animation: planetGlow 2s infinite;
+}
+
+@keyframes planetGlow {
+    0%, 100% { box-shadow: 0 0 20px rgba(0, 122, 255, 0.5); }
+    50% { box-shadow: 0 0 30px rgba(0, 122, 255, 0.8); }
+}
+
+.loading-text {
+    position: absolute;
+    bottom: -40px;
+    width: 100%;
+    text-align: center;
+    font-size: 1.5rem;
+    color: white;
+    letter-spacing: 2px;
+}
+
+.loading-letter {
+    display: inline-block;
+    animation: letterFloat 1.5s ease-in-out infinite;
+    opacity: 0;
+}
+
+.loading-letter:nth-child(1) { animation-delay: 0.1s; }
+.loading-letter:nth-child(2) { animation-delay: 0.2s; }
+.loading-letter:nth-child(3) { animation-delay: 0.3s; }
+.loading-letter:nth-child(4) { animation-delay: 0.4s; }
+.loading-letter:nth-child(5) { animation-delay: 0.5s; }
+
+@keyframes letterFloat {
+    0%, 100% { transform: translateY(0); opacity: 0.3; }
+    50% { transform: translateY(-10px); opacity: 1; }
+}
+
+.loading-dots .dot {
+    opacity: 0;
+    animation: dotPulse 1.2s infinite;
+}
+
+.dot:nth-child(1) { animation-delay: 0.0s; }
+.dot:nth-child(2) { animation-delay: 0.2s; }
+.dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes dotPulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+}
+
+/* Weer Header */
 .weather-header {
     padding: 20px 20px 15px;
     background: linear-gradient(to bottom, #007AFF, #0062CC);
     color: white;
-    position: relative;
     border-bottom-left-radius: 20px;
     border-bottom-right-radius: 20px;
     box-shadow: var(--shadow);
@@ -63,7 +198,7 @@ body {
     cursor: pointer;
 }
 
-/* Weer sectie */
+/* Weer Content */
 .weather-current {
     display: flex;
     justify-content: space-between;
@@ -85,12 +220,6 @@ body {
     font-weight: 500;
 }
 
-.weather-icon canvas {
-    width: 100px;
-    height: 100px;
-}
-
-/* Weer details */
 .weather-details {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -123,7 +252,7 @@ body {
     margin: 0;
 }
 
-/* 10-daagse voorspelling */
+/* 10-daagse Voorspelling */
 .daily-forecast {
     padding: 15px 20px;
 }
@@ -171,87 +300,4 @@ body {
 }
 
 .max-temp {
-    font-weight: 500;
-    width: 30px;
-    text-align: right;
-}
-
-.min-temp {
-    color: var(--text-tertiary);
-    width: 30px;
-    text-align: right;
-    margin-left: 10px;
-}
-
-/* Map pagina */
-#map {
-    width: 100%;
-    height: 300px;
-    border-radius: 10px;
-    margin-top: 20px;
-}
-
-.map-container {
-    padding: 15px;
-    background-color: var(--card-bg);
-    border-radius: 10px;
-    box-shadow: var(--shadow);
-}
-
-/* Loading spinner */
-.loading {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.6);
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    color: white;
-    z-index: 1000;
-    backdrop-filter: blur(5px);
-}
-
-.spinner {
-    border: 4px solid rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    border-top: 4px solid white;
-    width: 40px;
-    height: 40px;
-    animation: spin 1s linear infinite;
-    margin-bottom: 15px;
-}
-
-.loading p {
-    font-size: 16px;
-    font-weight: 500;
-    margin-top: 10px;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* Responsive aanpassingen */
-@media (max-width: 400px) {
-    .temperature-container {
-        font-size: 56px;
-    }
-    
-    .weather-icon canvas {
-        width: 80px;
-        height: 80px;
-    }
-    
-    .detail-item i {
-        font-size: 20px;
-    }
-    
-    .detail-item span {
-        font-size: 16px;
-    }
-}
+    font-weight: 500

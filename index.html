@@ -40,11 +40,11 @@
         </div>
     </div>
 
-    <!-- Home Pagina -->
+    <!-- Home Page -->
     <div id="home-page" class="page">
         <header class="weather-header">
             <div class="search-container">
-                <input type="text" id="search-input" placeholder="Zoek stad..." aria-label="Zoek locatie">
+                <input type="text" id="search-input" placeholder="Zoek stad...">
                 <button onclick="searchLocation()">🔍</button>
             </div>
         </header>
@@ -55,7 +55,7 @@
                 <div class="weather-condition" id="condition">--</div>
             </div>
             <div class="weather-icon">
-                <canvas id="weather-icon"></canvas>
+                <div id="weather-icon"></div>
             </div>
         </div>
 
@@ -85,7 +85,7 @@
         <button class="nav-button" onclick="showPage('map-page')">Regenkaart</button>
     </div>
 
-    <!-- Map Pagina -->
+    <!-- Map Page -->
     <div id="map-page" class="page">
         <div class="map-container">
             <div id="map"></div>

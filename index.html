@@ -1,40 +1,53 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="nl">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0099ff">
   <title>Zero Weather</title>
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="icon.png">
   <script defer src="script.js"></script>
 </head>
+
 <body>
   <header>
-    <img src="icon.png" alt="Zero Weather Logo" class="logo">
-    <h1>Zero Weather</h1>
+    <div class="logo-container">
+      <img src="icon.png" alt="Zero Weather Logo" class="logo">
+      <h1>Zero Weather</h1>
+    </div>
   </header>
 
   <main>
     <section class="weather-info">
-      <h2 id="location">Locatie...</h2>
+      <h2 id="location">Laden...</h2>
       <div class="temp">
         <span id="temperature">-°C</span>
         <img id="weather-icon" src="" alt="Weer icoon">
       </div>
       <p id="description">Laden...</p>
-      <p id="humidity"></p>
-      <p id="wind"></p>
+      <div class="extra-info">
+        <p id="humidity">Luchtvochtigheid: - %</p>
+        <p id="wind">Wind: - m/s</p>
+      </div>
     </section>
 
     <section class="map-section">
       <h3>Regenkaart</h3>
       <div id="map"></div>
     </section>
+
+    <section class="hourly-forecast">
+      <h3>Uurlijkse Voorspelling</h3>
+      <div id="hourly-forecast" class="forecast-container"></div>
+    </section>
   </main>
 
   <footer>
-    <p>Zero Weather © 2025</p>
+    <p>&copy; 2025 Zero Weather. Alle rechten voorbehouden.</p>
   </footer>
 </body>
+
 </html>

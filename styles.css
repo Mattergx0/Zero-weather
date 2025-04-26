@@ -3,26 +3,10 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overscroll-behavior-y: none;
+  overscroll-behavior-y: none; /* Voorkom pull-to-refresh op Android */
 }
 
-/* Thema's */
-.theme-blue { background: linear-gradient(to bottom right, #3b82f6, #93c5fd); }
-.theme-green { background: linear-gradient(to bottom right, #10b981, #6ee7b7); }
-.theme-purple { background: linear-gradient(to bottom right, #8b5cf6, #c4b5fd); }
-
-.theme-blue header, .theme-blue nav { background-color: rgba(30, 64, 175, 0.8); }
-.theme-green header, .theme-green nav { background-color: rgba(5, 150, 105, 0.8); }
-.theme-purple header, .theme-purple nav { background-color: rgba(109, 40, 217, 0.8); }
-
-.theme-blue button, .theme-blue a.bg-blue-600 { background-color: #2563eb; }
-.theme-blue button:hover, .theme-blue a.bg-blue-600:hover { background-color: #1d4ed8; }
-.theme-green button, .theme-green a.bg-blue-600 { background-color: #059669; }
-.theme-green button:hover, .theme-green a.bg-blue-600:hover { background-color: #047857; }
-.theme-purple button, .theme-purple a.bg-blue-600 { background-color: #7c3aed; }
-.theme-purple button:hover, .theme-purple a.bg-blue-600:hover { background-color: #6d28d9; }
-
-/* Safe area handling */
+/* Safe area handling voor iOS en Android */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
   body {
     padding-top: env(safe-area-inset-top);
@@ -30,33 +14,12 @@ body {
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
   }
-  nav { padding-bottom: calc(0.75rem + env(safe-area-inset-bottom)); }
 }
 
 /* Kaart styling */
 #map {
   height: 100%;
-  border-radius: 0 0 12px 12px;
-}
-
-/* Paneel styling */
-#panel {
-  transform: translateY(0);
-  transition: transform 0.3s ease;
-}
-#panel.translate-y-full {
-  transform: translateY(calc(100% - 2rem));
-}
-#panel-toggle svg.rotate-180 {
-  transform: rotate(180deg);
-}
-
-/* Tabblad styling */
-.tab-btn.active {
-  background-color: #1d4ed8;
-}
-#map-layers button.active {
-  background-color: #1d4ed8;
+  border-radius: 12px;
 }
 
 /* Uurlijkse voorspelling kaart */
@@ -70,51 +33,45 @@ body {
   touch-action: pan-x;
 }
 
-/* Weekvoorspelling */
-.day {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
-  padding: 12px;
-  text-align: center;
-}
-
-/* Hover-effect */
+/* Hover-effect alleen voor non-touch apparaten */
 @media (hover: hover) {
-  .hour:hover, .day:hover {
+  .hour:hover {
     transform: scale(1.05);
   }
 }
 
 /* Touch-vriendelijke knoppen en inputs */
-button, input, select, a {
+button, input {
   -webkit-appearance: none;
   appearance: none;
   touch-action: manipulation;
-  min-height: 44px;
+  min-height: 44px; /* Minimum tap target grootte */
   min-width: 44px;
 }
 
-/* Scroll snapping */
+/* Scroll snapping voor uurlijkse voorspelling */
 #hourly-forecast {
   scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
+  -webkit-overflow-scrolling: touch; /* Soepele scrolling op iOS */
 }
 
-/* Scrollbar */
+/* Aangepaste scrollbar */
 #hourly-forecast::-webkit-scrollbar {
   height: 5px;
 }
+
 #hourly-forecast::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 4px;
 }
+
 #hourly-forecast::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.3);
   border-radius: 4px;
 }
 
 /* Weerinfo animatie */
-.weather-info, #panel {
+.weather-info {
   animation: fadeIn 0.5s ease-in;
 }
 
@@ -139,7 +96,7 @@ button, input, select, a {
 
 /* Media query voor grotere schermen */
 @media (min-width: 640px) {
-  .hour, .day {
+  .hour {
     min-width: 80px;
     padding: 12px;
   }

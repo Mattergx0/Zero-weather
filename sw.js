@@ -7,10 +7,7 @@ self.addEventListener('install', event => {
         '/style.css',
         '/script.js',
         '/manifest.json',
-        '/icon-180.png',
-        '/icon-192.png',
-        '/icon-512.png',
-        '/icon-maskable.png'
+        '/icon.png'
       ]).catch(err => {
         console.error('Fout bij het cachen van assets:', err);
       });

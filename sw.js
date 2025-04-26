@@ -1,16 +1,15 @@
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open('zero-weather-cache-v3').then(cache => {
+    caches.open('zero-weather-cache-v4').then(cache => {
       return cache.addAll([
         '/',
         '/index.html',
+        '/settings.html',
         '/style.css',
         '/script.js',
         '/manifest.json',
         '/icon.png'
-      ]).catch(err => {
-        console.error('Fout bij het cachen van assets:', err);
-      });
+      ]);
     })
   );
   console.log('Service Worker geïnstalleerd');
@@ -19,15 +18,13 @@ self.addEventListener('install', event => {
 self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request).then(response => {
-      return response || fetch(event.request).catch(err => {
-        console.error('Fetch fout:', err);
-      });
+      return response || fetch(event.request);
     })
   );
 });
 
 self.addEventListener('activate', event => {
-  const cacheWhitelist = ['zero-weather-cache-v3'];
+  const cacheWhitelist = ['zero-weather-cache-v4'];
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(

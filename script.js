@@ -1,26 +1,7 @@
 const apiKey = "51449fa3b241b52737fe2b3626795957";
-let unit = localStorage.getItem('unit') || "metric";
-let isCelsius = unit === "metric";
+let unit = "metric";
+let isCelsius = true;
 let currentLat, currentLon;
-let map, precipitationLayer, temperatureLayer, windLayer;
-let settings = {
-  defaultLocation: localStorage.getItem('defaultLocation') || "",
-  theme: localStorage.getItem('theme') || "blue",
-  showTips: localStorage.getItem('showTips') !== "false"
-};
-
-function applySettings() {
-  document.body.className = document.body.className.replace(/theme-\w+/, `theme-${settings.theme}`);
-  document.querySelector('meta[name="theme-color"]').setAttribute('content', settings.theme === 'blue' ? '#007bff' : settings.theme === 'green' ? '#10b981' : '#8b5cf6');
-  unit = localStorage.getItem('unit') || "metric";
-  isCelsius = unit === "metric";
-  if (document.getElementById('unit-toggle')) {
-    document.getElementById('unit-toggle').textContent = isCelsius ? "°C/°F" : "°F/°C";
-  }
-  if (document.getElementById('weather-tip')) {
-    document.getElementById('weather-tip').style.display = settings.showTips ? 'block' : 'none';
-  }
-}
 
 function showLoading() {
   const loading = document.getElementById('loading');
@@ -28,6 +9,8 @@ function showLoading() {
   if (loading && weatherIcon) {
     loading.classList.remove('hidden');
     weatherIcon.classList.add('hidden');
+  } else {
+    console.error('Ladelement of weericoon niet gevonden');
   }
 }
 
@@ -37,52 +20,43 @@ function hideLoading() {
   if (loading && weatherIcon) {
     loading.classList.add('hidden');
     weatherIcon.classList.remove('hidden');
+  } else {
+    console.error('Ladelement of weericoon niet gevonden');
   }
 }
 
-function initMap(lat, lon) {
-  if (map) map.remove();
-  map = L.map('map', {
-    zoomControl: true,
-    attributionControl: true,
-    gestureHandling: true
-  }).setView([lat, lon], 10);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '© OpenStreetMap'
-  }).addTo(map);
-  precipitationLayer = L.tileLayer(`https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=${apiKey}`, { maxZoom: 19, opacity: 0.6 });
-  temperatureLayer = L.tileLayer(`https://tile.openweathermap.org/map/temp_new/{z}/{x}/{y}.png?appid=${apiKey}`, { maxZoom: 19, opacity: 0.6 });
-  windLayer = L.tileLayer(`https://tile.openweathermap.org/map/wind_new/{z}/{x}/{y}.png?appid=${apiKey}`, { maxZoom: 19, opacity: 0.6 });
-  precipitationLayer.addTo(map);
-}
-
-function switchMapLayer(layer) {
-  const buttons = document.querySelectorAll('#map-layers button');
-  buttons.forEach(btn => btn.classList.remove('active'));
-  if (layer === 'precipitation') {
-    map.removeLayer(temperatureLayer);
-    map.removeLayer(windLayer);
-    precipitationLayer.addTo(map);
-    document.getElementById('layer-precipitation').classList.add('active');
-  } else if (layer === 'temperature') {
-    map.removeLayer(precipitationLayer);
-    map.removeLayer(windLayer);
-    temperatureLayer.addTo(map);
-    document.getElementById('layer-temperature').classList.add('active');
-  } else if (layer === 'wind') {
-    map.removeLayer(precipitationLayer);
-    map.removeLayer(temperatureLayer);
-    windLayer.addTo(map);
-    document.getElementById('layer-wind').classList.add('active');
+function loadMap(lat, lon) {
+  const mapElement = document.getElementById('map');
+  if (!mapElement) {
+    console.error('Kaartelement niet gevonden');
+    return;
+  }
+  try {
+    const map = L.map('map', {
+      zoomControl: true,
+      attributionControl: true,
+      gestureHandling: true
+    }).setView([lat, lon], 10);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+    L.tileLayer(`https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=${apiKey}`, {
+      maxZoom: 19,
+      opacity: 0.6
+    }).addTo(map);
+    console.log('Kaart succesvol geladen voor lat:', lat, 'lon:', lon);
+  } catch (error) {
+    console.error('Fout bij het laden van de kaart:', error);
+    alert('Fout bij het laden van de regenkaart. Probeer het opnieuw.');
   }
 }
 
 function getWeatherTip(data) {
-  if (!settings.showTips) return "";
   const temp = data.main.temp;
   const weatherCode = data.weather[0].icon;
   const windSpeed = data.wind.speed;
+
   if (weatherCode.includes('09') || weatherCode.includes('10')) {
     return "Neem een paraplu mee, buien verwacht!";
   } else if (weatherCode.includes('01d')) {
@@ -110,11 +84,15 @@ function getWeather(lat, lon, city = null) {
 
   fetch(url)
     .then(response => {
-      if (!response.ok) throw new Error(response.status === 401 ? 'Ongeldige API-sleutel' : 'Locatie niet gevonden');
+      if (!response.ok) {
+        throw new Error(response.status === 401 ? 'Ongeldige API-sleutel' : 'Locatie niet gevonden');
+      }
       return response.json();
     })
     .then(data => {
-      if (!data.name || !data.sys || !data.main) throw new Error('Onvolledige weergegevens ontvangen');
+      if (!data.name || !data.sys || !data.main) {
+        throw new Error('Onvolledige weergegevens ontvangen');
+      }
       const location = `${data.name}, ${data.sys.country}`;
       const temperature = Math.round(data.main.temp);
       const description = data.weather[0].description.charAt(0).toUpperCase() + data.weather[0].description.slice(1);
@@ -135,14 +113,13 @@ function getWeather(lat, lon, city = null) {
       document.getElementById('sunrise-sunset').textContent = `Zonsopgang/Zonsondergang: ${sunrise}/${sunset}`;
       document.getElementById('weather-icon').src = icon;
       document.getElementById('weather-tip').textContent = `Weertip: ${weatherTip}`;
-      document.getElementById('weather-tip').style.display = settings.showTips ? 'block' : 'none';
 
       currentLat = data.coord.lat;
       currentLon = data.coord.lon;
-      initMap(currentLat, currentLon);
+      loadMap(currentLat, currentLon);
       getHourlyForecast(currentLat, currentLon);
-      getWeeklyForecast(currentLat, currentLon);
       hideLoading();
+      console.log('Weergegevens succesvol geladen voor:', location);
     })
     .catch(error => {
       hideLoading();
@@ -154,14 +131,20 @@ function getWeather(lat, lon, city = null) {
 function getHourlyForecast(lat, lon) {
   fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=${unit}&lang=nl`)
     .then(response => {
-      if (!response.ok) throw new Error(response.status === 401 ? 'Ongeldige API-sleutel' : 'Voorspelling niet beschikbaar');
+      if (!response.ok) {
+        throw new Error(response.status === 401 ? 'Ongeldige API-sleutel' : 'Voorspelling niet beschikbaar');
+      }
       return response.json();
     })
     .then(data => {
       const hourlyData = data.list.slice(0, 12);
       const hourlyForecast = document.getElementById('hourly-forecast');
-      if (!hourlyForecast) return;
+      if (!hourlyForecast) {
+        console.error('Uurlijkse voorspelling element niet gevonden');
+        return;
+      }
       hourlyForecast.innerHTML = '';
+
       hourlyData.forEach(hour => {
         const hourDiv = document.createElement('div');
         hourDiv.classList.add('hour', 'snap-center');
@@ -173,6 +156,7 @@ function getHourlyForecast(lat, lon) {
         `;
         hourlyForecast.appendChild(hourDiv);
       });
+      console.log('Uurlijkse voorspelling geladen voor:', lat, lon);
     })
     .catch(error => {
       console.error('Fout bij het ophalen van uurlijkse voorspelling:', error.message);
@@ -180,39 +164,9 @@ function getHourlyForecast(lat, lon) {
     });
 }
 
-function getWeeklyForecast(lat, lon) {
-  fetch(`https://api.openweathermap.org/data/2.5/forecast/daily?lat=${lat}&lon=${lon}&cnt=7&appid=${apiKey}&units=${unit}&lang=nl`)
-    .then(response => {
-      if (!response.ok) throw new Error(response.status === 401 ? 'Ongeldige API-sleutel' : 'Voorspelling niet beschikbaar');
-      return response.json();
-    })
-    .then(data => {
-      const weeklyData = data.list;
-      const weeklyForecast = document.getElementById('weekly-forecast');
-      if (!weeklyForecast) return;
-      weeklyForecast.innerHTML = '';
-      weeklyData.forEach(day => {
-        const dayDiv = document.createElement('div');
-        dayDiv.classList.add('day', 'bg-white', 'bg-opacity-20', 'rounded-lg', 'p-3', 'text-center');
-        dayDiv.innerHTML = `
-          <p class="font-semibold text-sm">${new Date(day.dt * 1000).toLocaleDateString('nl-NL', { weekday: 'long' })}</p>
-          <img src="https://openweathermap.org/img/wn/${day.weather[0].icon}.png" alt="Weer icoon" class="w-8 mx-auto">
-          <p class="text-sm">${Math.round(day.temp.day)}${isCelsius ? '°C' : '°F'}</p>
-          <p class="text-sm">${day.weather[0].description.charAt(0).toUpperCase() + day.weather[0].description.slice(1)}</p>
-        `;
-        weeklyForecast.appendChild(dayDiv);
-      });
-    })
-    .catch(error => {
-      console.error('Fout bij het ophalen van weekvoorspelling:', error.message);
-      alert(`Fout bij het ophalen van de weekvoorspelling: ${error.message}`);
-    });
-}
-
 function toggleUnit() {
   isCelsius = !isCelsius;
   unit = isCelsius ? "metric" : "imperial";
-  localStorage.setItem('unit', unit);
   const unitToggle = document.getElementById('unit-toggle');
   if (unitToggle) {
     unitToggle.textContent = isCelsius ? "°C/°F" : "°F/°C";
@@ -233,69 +187,20 @@ function searchWeather() {
     } else {
       alert('Voer een geldige locatie in!');
     }
-  }
-}
-
-function switchTab(tab) {
-  const tabs = document.querySelectorAll('.tab-pane');
-  const buttons = document.querySelectorAll('.tab-btn');
-  tabs.forEach(t => t.classList.add('hidden'));
-  buttons.forEach(b => b.classList.remove('active'));
-  document.getElementById(`tab-${tab}`).classList.remove('hidden');
-  document.getElementById(`tab-btn-${tab}`).classList.add('active');
-}
-
-function togglePanel() {
-  const panel = document.getElementById('panel');
-  const toggleBtn = document.getElementById('panel-toggle');
-  if (panel.classList.contains('translate-y-full')) {
-    panel.classList.remove('translate-y-full');
-    toggleBtn.querySelector('svg').classList.add('rotate-180');
   } else {
-    panel.classList.add('translate-y-full');
-    toggleBtn.querySelector('svg').classList.remove('rotate-180');
-  }
-}
-
-function initSettingsPage() {
-  const defaultLocation = document.getElementById('default-location');
-  const unitSelect = document.getElementById('unit-select');
-  const themeSelect = document.getElementById('theme-select');
-  const tipsToggle = document.getElementById('tips-toggle');
-  const saveBtn = document.getElementById('save-settings');
-
-  if (defaultLocation && unitSelect && themeSelect && tipsToggle && saveBtn) {
-    defaultLocation.value = settings.defaultLocation;
-    unitSelect.value = unit;
-    themeSelect.value = settings.theme;
-    tipsToggle.checked = settings.showTips;
-
-    saveBtn.addEventListener('click', () => {
-      settings.defaultLocation = defaultLocation.value.trim();
-      settings.unit = unitSelect.value;
-      settings.theme = themeSelect.value;
-      settings.showTips = tipsToggle.checked;
-      localStorage.setItem('defaultLocation', settings.defaultLocation);
-      localStorage.setItem('unit', settings.unit);
-      localStorage.setItem('theme', settings.theme);
-      localStorage.setItem('showTips', settings.showTips);
-      applySettings();
-      alert('Instellingen opgeslagen!');
-      if (settings.defaultLocation) {
-        getWeather(null, null, settings.defaultLocation);
-      }
-    });
+    console.error('Zoekinvoer niet gevonden');
   }
 }
 
 function init() {
-  applySettings();
+  // Registreer service worker
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js')
       .then(reg => console.log('Service Worker geregistreerd:', reg))
       .catch(err => console.error('Service Worker registratie mislukt:', err));
   }
 
+  // Haal locatie op
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       position => {
@@ -303,49 +208,39 @@ function init() {
         currentLat = latitude;
         currentLon = longitude;
         getWeather(latitude, longitude);
+        console.log('Geolocatie succesvol:', latitude, longitude);
       },
       error => {
         currentLat = 52.3676;
         currentLon = 4.9041;
-        getWeather(currentLat, currentLon, settings.defaultLocation || 'Amsterdam');
+        getWeather(currentLat, currentLon, 'Amsterdam');
+        console.warn('Geolocatie mislukt, fallback naar Amsterdam:', error.message);
         alert('Locatie kan niet worden bepaald. Standaardlocatie: Amsterdam.');
       }
     );
   } else {
     currentLat = 52.3676;
     currentLon = 4.9041;
-    getWeather(currentLat, currentLon, settings.defaultLocation || 'Amsterdam');
+    getWeather(currentLat, currentLon, 'Amsterdam');
+    console.warn('Geolocatie niet ondersteund, fallback naar Amsterdam');
     alert('Geolocatie wordt niet ondersteund. Standaardlocatie: Amsterdam.');
-  }
-
-  if (document.getElementById('panel-toggle')) {
-    document.getElementById('panel-toggle').addEventListener('click', togglePanel);
-  }
-  if (document.querySelectorAll('.tab-btn')) {
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-      btn.addEventListener('click', () => switchTab(btn.id.replace('tab-btn-', '')));
-    });
-  }
-  if (document.getElementById('layer-precipitation')) {
-    document.getElementById('layer-precipitation').addEventListener('click', () => switchMapLayer('precipitation'));
-    document.getElementById('layer-temperature').addEventListener('click', () => switchMapLayer('temperature'));
-    document.getElementById('layer-wind').addEventListener('click', () => switchMapLayer('wind'));
-  }
-
-  if (window.location.pathname.includes('settings.html')) {
-    initSettingsPage();
   }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   const searchBtn = document.getElementById('search-btn');
   const searchInput = document.getElementById('search-input');
+  const unitToggle = document.getElementById('unit-toggle');
 
-  if (searchBtn && searchInput) {
+  if (searchBtn && searchInput && unitToggle) {
     searchBtn.addEventListener('click', searchWeather);
     searchInput.addEventListener('keypress', e => {
       if (e.key === 'Enter') searchWeather();
     });
+    unitToggle.addEventListener('click', toggleUnit);
     init();
+  } else {
+    console.error('Een of meer UI-elementen niet gevonden');
+    alert('Fout: Kan de app niet initialiseren. Controleer de pagina-opbouw.');
   }
 });

@@ -24,8 +24,9 @@
         <img src="icon.png" alt="Zero Weather Logo" class="w-8 h-8">
         <h1 class="text-lg font-bold">Zero Weather</h1>
       </div>
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 relative">
         <input id="search-input" type="text" placeholder="Zoek locatie..." class="p-2 rounded-lg text-black text-sm w-28 sm:w-36" aria-label="Zoek een locatie">
+        <div id="location-suggestions" class="absolute top-full left-0 w-full bg-white text-black rounded-lg shadow-lg hidden mt-1 max-h-40 overflow-y-auto"></div>
         <button id="search-btn" class="bg-blue-600 p-2 rounded-lg hover:bg-blue-700 text-sm" aria-label="Zoek locatie">Zoek</button>
         <button id="unit-toggle" class="bg-blue-600 p-2 rounded-lg hover:bg-blue-700 text-sm" aria-label="Wissel tussen Celsius en Fahrenheit">°C/°F</button>
       </div>

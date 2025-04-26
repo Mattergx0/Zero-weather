@@ -87,96 +87,119 @@ function getHourlyForecast(lat, lon) {
         const hourDiv = document.createElement('div');
         hourDiv.classList.add('hour', 'snap-center');
         hourDiv.innerHTML = `
-          <p class="font-semibold text-xs">${new Date(hour.dt * 1000).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })}</p>
-          <img src="https://openweathermap.org/img/wn/${hour.weather[0].icon}.png" alt="Weer icoon" class="w-8">
-          <p class="text-xs">${Math.round(hour.main.temp)}${isCelsius ? '°C' : '°F'}</p>
-          <p class="text-xs">${hour.weather[0].description.charAt(0).toUpperCase() + hour.weather[0].description.slice(1)}</p>
-        `;
-        hourlyForecast.appendChild(hourDiv);
-      });
-    })
-    .catch(error => {
-      console.error('Fout bij het ophalen van de uurlijkse voorspellingen:', error);
-    });
+          <p class="font-semibold text-xs">${new Date(hour.dt * 1000).toLocaleTimeString('nl-NL', { hour:_LINES
+
+**Changes from Previous**:
+- Fixed service worker registration by moving it to a separate block with proper `self` context.
+- Added error logging for service worker caching to aid debugging.
+- Ensured map initializes only after DOM is loaded to prevent `null` errors.
+- Simplified hourly forecast icon URL to `@2x` for consistency.
+
+#### 4. `style.css`
+Optimized for cross-platform responsiveness and touch interactions.
+
+<xaiArtifact artifact_id="88de1b94-2101-43f3-9768-e5b3a3be1e30" artifact_version_id="ea9231b6-1b69-4f7f-873a-53c4bc836e34" title="style.css" contentType="text/css">
+/* System font for cross-platform consistency */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior-y: none; /* Prevent pull-to-refresh on Android */
 }
 
-function toggleUnit() {
-  isCelsius = !isCelsius;
-  unit = isCelsius ? "metric" : "imperial";
-  document.getElementById('unit-toggle').textContent = isCelsius ? "°C/°F" : "°F/°C";
-  if (currentLat && currentLon) {
-    getWeather(currentLat, currentLon);
-  } else {
-    alert('Selecteer eerst een locatie!');
+/* Safe area handling for iOS and Android */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
   }
 }
 
-function searchWeather() {
-  const city = document.getElementById('search-input').value.trim();
-  if (city) {
-    getWeather(null, null, city);
-  } else {
-    alert('Voer een geldige locatie in!');
+/* Map styling */
+#map {
+  height: 100%;
+  border-radius: 12px;
+}
+
+/* Hourly forecast card */
+.hour {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 8px;
+  text-align: center;
+  min-width: 70px;
+  transition: transform 0.3s ease;
+  touch-action: pan-x;
+}
+
+/* Hover effect only for non-touch devices */
+@media (hover: hover) {
+  .hour:hover {
+    transform: scale(1.05);
   }
 }
 
-function init() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      position => {
-        const { latitude, longitude } = position.coords;
-        currentLat = latitude;
-        currentLon = longitude;
-        getWeather(latitude, longitude);
-      },
-      error => {
-        currentLat = 52.3676;
-        currentLon = 4.9041;
-        getWeather(currentLat, currentLon, 'Amsterdam');
-        alert('Locatie kan niet worden bepaald. Standaardlocatie: Amsterdam.');
-      }
-    );
-  } else {
-    currentLat = 52.3676;
-    currentLon = 4.9041;
-    getWeather(currentLat, currentLon, 'Amsterdam');
-    alert('Geolocatie wordt niet ondersteund. Standaardlocatie: Amsterdam.');
-  }
+/* Touch-friendly buttons and inputs */
+button, input {
+  -webkit-appearance: none;
+  appearance: none;
+  touch-action: manipulation;
+  min-height: 44px; /* Minimum tap target size */
+  min-width: 44px;
 }
 
-document.getElementById('search-btn').addEventListener('click', searchWeather);
-document.getElementById('search-input').addEventListener('keypress', e => {
-  if (e.key === 'Enter') searchWeather();
-});
-document.getElementById('unit-toggle').addEventListener('click', toggleUnit);
+/* Scroll snapping for hourly forecast */
+#hourly-forecast {
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
 
-document.addEventListener('DOMContentLoaded', () => {
-  init();
-});
+/* Custom scrollbar */
+#hourly-forecast::-webkit-scrollbar {
+  height: 5px;
+}
 
-// Service Worker
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open('zero-weather-cache-v2').then(cache => {
-      return cache.addAll([
-        '/',
-        '/index.html',
-        '/style.css',
-        '/script.js',
-        '/manifest.json',
-        '/icon-180.png',
-        '/icon-192.png',
-        '/icon-512.png',
-        '/icon-maskable.png'
-      ]);
-    })
-  );
-});
+#hourly-forecast::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
 
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request).then(response => {
-      return response || fetch(event.request);
-    })
-  );
-});
+#hourly-forecast::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+/* Weather info animation */
+.weather-info {
+  animation: fadeIn 0.5s ease-in;
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Hide weather icon during loading */
+#loading:not(.hidden) ~ .flex #weather-icon {
+  display: none;
+}
+
+/* Media query for larger screens */
+@media (min-width: 640px) {
+  .hour {
+    min-width: 80px;
+    padding: 12px;
+  }
+  #search-input {
+    width: 9rem;
+  }
+  .text-lg {
+    font-size: 1.25rem;
+  }
+  .text-xl {
+    font-size: 1.5rem;
+  }
+}

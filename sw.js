@@ -1,0 +1,46 @@
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open('zero-weather-cache-v3').then(cache => {
+      return cache.addAll([
+        '/',
+        '/index.html',
+        '/style.css',
+        '/script.js',
+        '/manifest.json',
+        '/icon-180.png',
+        '/icon-192.png',
+        '/icon-512.png',
+        '/icon-maskable.png'
+      ]).catch(err => {
+        console.error('Fout bij het cachen van assets:', err);
+      });
+    })
+  );
+  console.log('Service Worker geïnstalleerd');
+});
+
+self.addEventListener('fetch', event => {
+  event.respondWith(
+    caches.match(event.request).then(response => {
+      return response || fetch(event.request).catch(err => {
+        console.error('Fetch fout:', err);
+      });
+    })
+  );
+});
+
+self.addEventListener('activate', event => {
+  const cacheWhitelist = ['zero-weather-cache-v3'];
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+          if (!cacheWhitelist.includes(cacheName)) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
+  );
+  console.log('Service Worker geactiveerd');
+});

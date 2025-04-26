@@ -2,42 +2,46 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#007bff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Zero Weather: Actuele weersvoorspellingen en regenkaarten">
   <title>Zero Weather</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="icon.png">
+  <link rel="apple-touch-icon" href="icon-180.png">
+  <link rel="icon" href="icon-192.png">
   <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
   <script defer src="script.js"></script>
 </head>
-<body class="bg-gradient-to-br from-blue-500 to-blue-200 text-white min-h-screen flex flex-col">
-  <header class="bg-blue-800 bg-opacity-80 p-4 shadow-lg">
-    <div class="container mx-auto flex justify-between items-center">
-      <div class="flex items-center gap-4">
-        <img src="icon.png" alt="Zero Weather Logo" class="w-12">
-        <h1 class="text-2xl font-bold">Zero Weather</h1>
+<body class="bg-gradient-to-br from-blue-500 to-blue-200 text-white min-h-screen flex flex-col font-sans">
+  <header class="bg-blue-800 bg-opacity-80 p-3 shadow-lg">
+    <div class="container mx-auto flex justify-between items-center px-3">
+      <div class="flex items-center gap-3">
+        <img src="icon-192.png" alt="Zero Weather Logo" class="w-8 h-8">
+        <h1 class="text-lg font-bold">Zero Weather</h1>
       </div>
       <div class="flex items-center gap-2">
-        <input id="search-input" type="text" placeholder="Zoek locatie..." class="p-2 rounded-lg text-black">
-        <button id="search-btn" class="bg-blue-600 p-2 rounded-lg hover:bg-blue-700">Zoek</button>
-        <button id="unit-toggle" class="bg-blue-600 p-2 rounded-lg hover:bg-blue-700">°C/°F</button>
+        <input id="search-input" type="text" placeholder="Zoek locatie..." class="p-2 rounded-lg text-black text-sm w-28 sm:w-36">
+        <button id="search-btn" class="bg-blue-600 p-2 rounded-lg hover:bg-blue-700 text-sm" aria-label="Zoek locatie">Zoek</button>
+        <button id="unit-toggle" class="bg-blue-600 p-2 rounded-lg hover:bg-blue-700 text-sm" aria-label="Wissel tussen Celsius en Fahrenheit">°C/°F</button>
       </div>
     </div>
   </header>
 
-  <main class="container mx-auto flex-grow p-4">
-    <section class="weather-info bg-white bg-opacity-20 rounded-2xl p-6 text-center shadow-lg mb-6">
-      <h2 id="location" class="text-3xl font-semibold">Laden...</h2>
-      <div id="loading" class="hidden text-lg my-4">Gegevens worden geladen...</div>
-      <div class="flex justify-center items-center gap-4 my-4">
-        <span id="temperature" class="text-5xl font-bold">-°C</span>
-        <img id="weather-icon" src="" alt="Weer icoon" class="w-20 hidden">
+  <main class="container mx-auto flex-grow p-3 pb-16">
+    <section class="weather-info bg-white bg-opacity-20 rounded-xl p-5 text-center shadow-lg mb-5">
+      <h2 id="location" class="text-xl font-semibold">Laden...</h2>
+      <div id="loading" class="hidden text-sm my-3">Gegevens worden geladen...</div>
+      <div class="flex justify-center items-center gap-3 my-3">
+        <span id="temperature" class="text-3xl font-bold">-°C</span>
+        <img id="weather-icon" src="" alt="Weer icoon" class="w-12 hidden">
       </div>
-      <p id="description" class="text-lg">Laden...</p>
-      <div class="grid grid-cols-2 gap-4 mt-4 text-lg">
+      <p id="description" class="text-sm">Laden...</p>
+      <div class="grid grid-cols-2 gap-3 mt-3 text-sm">
         <p id="humidity">Luchtvochtigheid: - %</p>
         <p id="wind">Wind: - m/s</p>
         <p id="pressure">Druk: - hPa</p>
@@ -45,19 +49,19 @@
       </div>
     </section>
 
-    <section class="map-section mb-6">
-      <h3 class="text-2xl font-semibold mb-4">Regenkaart</h3>
-      <div id="map" class="h-96 rounded-2xl shadow-lg"></div>
+    <section class="map-section mb-5">
+      <h3 class="text-lg font-semibold mb-3">Regenkaart</h3>
+      <div id="map" class="h-64 sm:h-72 rounded-xl shadow-lg"></div>
     </section>
 
     <section class="hourly-forecast">
-      <h3 class="text-2xl font-semibold mb-4">Uurlijkse Voorspelling</h3>
-      <div id="hourly-forecast" class="flex gap-4 overflow-x-auto pb-4"></div>
+      <h3 class="text-lg font-semibold mb-3">Uurlijkse Voorspelling</h3>
+      <div id="hourly-forecast" class="flex gap-3 overflow-x-auto pb-3 snap-x snap-mandatory"></div>
     </section>
   </main>
 
-  <footer class="bg-blue-800 bg-opacity-80 p-4 text-center">
-    <p>© 2025 Zero Weather. Alle rechten voorbehouden.</p>
+  <footer class="bg-blue-800 bg-opacity-80 p-3 text-center">
+    <p class="text-xs">© 2025 Zero Weather. Alle rechten voorbehouden.</p>
   </footer>
 </body>
 </html>

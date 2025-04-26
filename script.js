@@ -4,29 +4,48 @@ let isCelsius = true;
 let currentLat, currentLon;
 
 function showLoading() {
-  document.getElementById('loading').classList.remove('hidden');
-  document.getElementById('weather-icon').classList.add('hidden');
+  const loading = document.getElementById('loading');
+  const weatherIcon = document.getElementById('weather-icon');
+  if (loading && weatherIcon) {
+    loading.classList.remove('hidden');
+    weatherIcon.classList.add('hidden');
+  }
 }
 
 function hideLoading() {
-  document.getElementById('loading').classList.add('hidden');
-  document.getElementById('weather-icon').classList.remove('hidden');
+  const loading = document.getElementById('loading');
+  const weatherIcon = document.getElementById('weather-icon');
+  if (loading && weatherIcon) {
+    loading.classList.add('hidden');
+    weatherIcon.classList.remove('hidden');
+  }
 }
 
 function loadMap(lat, lon) {
-  const map = L.map('map', {
-    zoomControl: true,
-    attributionControl: true,
-    gestureHandling: true
-  }).setView([lat, lon], 10);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '© OpenStreetMap'
-  }).addTo(map);
-  L.tileLayer(`https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=${apiKey}`, {
-    maxZoom: 19,
-    opacity: 0.6
-  }).addTo(map);
+  const mapElement = document.getElementById('map');
+  if (!mapElement) {
+    console.error('Kaartelement niet gevonden');
+    return;
+  }
+  try {
+    const map = L.map('map', {
+      zoomControl: true,
+      attributionControl: true,
+      gestureHandling: true
+    }).setView([lat, lon], 10);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+    L.tileLayer(`https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=${apiKey}`, {
+      maxZoom: 19,
+      opacity: 0.6
+    }).addTo(map);
+    console.log('Kaart succesvol geladen voor lat:', lat, 'lon:', lon);
+  } catch (error) {
+    console.error('Fout bij het laden van de kaart:', error);
+    alert('Fout bij het laden van de regenkaart. Probeer het opnieuw.');
+  }
 }
 
 function getWeather(lat, lon, city = null) {
@@ -37,10 +56,15 @@ function getWeather(lat, lon, city = null) {
 
   fetch(url)
     .then(response => {
-      if (!response.ok) throw new Error('Locatie niet gevonden');
+      if (!response.ok) {
+        throw new Error(response.status === 401 ? 'Ongeldige API-sleutel' : 'Locatie niet gevonden');
+      }
       return response.json();
     })
     .then(data => {
+      if (!data.name || !data.sys || !data.main) {
+        throw new Error('Onvolledige weergegevens ontvangen');
+      }
       const location = `${data.name}, ${data.sys.country}`;
       const temperature = Math.round(data.main.temp);
       const description = data.weather[0].description.charAt(0).toUpperCase() + data.weather[0].description.slice(1);
@@ -65,141 +89,120 @@ function getWeather(lat, lon, city = null) {
       loadMap(currentLat, currentLon);
       getHourlyForecast(currentLat, currentLon);
       hideLoading();
+      console.log('Weergegevens succesvol geladen voor:', location);
     })
     .catch(error => {
       hideLoading();
-      alert(`Fout bij het ophalen van het weer: ${error.message}`);
+      console.error('Fout bij het ophalen van weergegevens:', error.message);
+      alert(`Fout bij het ophalen van het weer: ${error.message}. Controleer de API-sleutel of locatie.`);
     });
 }
 
 function getHourlyForecast(lat, lon) {
   fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=${unit}&lang=nl`)
     .then(response => {
-      if (!response.ok) throw new Error('Voorspelling niet beschikbaar');
+      if (!response.ok) {
+        throw new Error(response.status === 401 ? 'Ongeldige API-sleutel' : 'Voorspelling niet beschikbaar');
+      }
       return response.json();
     })
     .then(data => {
       const hourlyData = data.list.slice(0, 12);
       const hourlyForecast = document.getElementById('hourly-forecast');
+      if (!hourlyForecast) {
+        console.error('Uurlijkse voorspelling element niet gevonden');
+        return;
+      }
       hourlyForecast.innerHTML = '';
 
       hourlyData.forEach(hour => {
         const hourDiv = document.createElement('div');
         hourDiv.classList.add('hour', 'snap-center');
         hourDiv.innerHTML = `
-          <p class="font-semibold text-xs">${new Date(hour.dt * 1000).toLocaleTimeString('nl-NL', { hour:_LINES
-
-**Changes from Previous**:
-- Fixed service worker registration by moving it to a separate block with proper `self` context.
-- Added error logging for service worker caching to aid debugging.
-- Ensured map initializes only after DOM is loaded to prevent `null` errors.
-- Simplified hourly forecast icon URL to `@2x` for consistency.
-
-#### 4. `style.css`
-Optimized for cross-platform responsiveness and touch interactions.
-
-<xaiArtifact artifact_id="88de1b94-2101-43f3-9768-e5b3a3be1e30" artifact_version_id="ea9231b6-1b69-4f7f-873a-53c4bc836e34" title="style.css" contentType="text/css">
-/* System font for cross-platform consistency */
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  overscroll-behavior-y: none; /* Prevent pull-to-refresh on Android */
+          <p class="font-semibold text-xs">${new Date(hour.dt * 1000).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })}</p>
+          <img src="https://openweathermap.org/img/wn/${hour.weather[0].icon}.png" alt="Weer icoon" class="w-8">
+          <p class="text-xs">${Math.round(hour.main.temp)}${isCelsius ? '°C' : '°F'}</p>
+          <p class="text-xs">${hour.weather[0].description.charAt(0).toUpperCase() + hour.weather[0].description.slice(1)}</p>
+        `;
+        hourlyForecast.appendChild(hourDiv);
+      });
+      console.log('Uurlijkse voorspelling geladen voor:', lat, lon);
+    })
+    .catch(error => {
+      console.error('Fout bij het ophalen van uurlijkse voorspelling:', error.message);
+      alert(`Fout bij het ophalen van de uurlijkse voorspelling: ${error.message}`);
+    });
 }
 
-/* Safe area handling for iOS and Android */
-@supports (padding-bottom: env(safe-area-inset-bottom)) {
-  body {
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
+function toggleUnit() {
+  isCelsius = !isCelsius;
+  unit = isCelsius ? "metric" : "imperial";
+  document.getElementById('unit-toggle').textContent = isCelsius ? "°C/°F" : "°F/°C";
+  if (currentLat && currentLon) {
+    getWeather(currentLat, currentLon);
+  } else {
+    alert('Selecteer eerst een locatie!');
   }
 }
 
-/* Map styling */
-#map {
-  height: 100%;
-  border-radius: 12px;
-}
-
-/* Hourly forecast card */
-.hour {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
-  padding: 8px;
-  text-align: center;
-  min-width: 70px;
-  transition: transform 0.3s ease;
-  touch-action: pan-x;
-}
-
-/* Hover effect only for non-touch devices */
-@media (hover: hover) {
-  .hour:hover {
-    transform: scale(1.05);
+function searchWeather() {
+  const city = document.getElementById('search-input').value.trim();
+  if (city) {
+    getWeather(null, null, city);
+  } else {
+    alert('Voer een geldige locatie in!');
   }
 }
 
-/* Touch-friendly buttons and inputs */
-button, input {
-  -webkit-appearance: none;
-  appearance: none;
-  touch-action: manipulation;
-  min-height: 44px; /* Minimum tap target size */
-  min-width: 44px;
-}
-
-/* Scroll snapping for hourly forecast */
-#hourly-forecast {
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-}
-
-/* Custom scrollbar */
-#hourly-forecast::-webkit-scrollbar {
-  height: 5px;
-}
-
-#hourly-forecast::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
-}
-
-#hourly-forecast::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 4px;
-}
-
-/* Weather info animation */
-.weather-info {
-  animation: fadeIn 0.5s ease-in;
-}
-
-/* Fade-in animation */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-/* Hide weather icon during loading */
-#loading:not(.hidden) ~ .flex #weather-icon {
-  display: none;
-}
-
-/* Media query for larger screens */
-@media (min-width: 640px) {
-  .hour {
-    min-width: 80px;
-    padding: 12px;
+function init() {
+  // Registreer service worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('Service Worker geregistreerd:', reg))
+      .catch(err => console.error('Service Worker registratie mislukt:', err));
   }
-  #search-input {
-    width: 9rem;
-  }
-  .text-lg {
-    font-size: 1.25rem;
-  }
-  .text-xl {
-    font-size: 1.5rem;
+
+  // Haal locatie op
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      position => {
+        const { latitude, longitude } = position.coords;
+        currentLat = latitude;
+        currentLon = longitude;
+        getWeather(latitude, longitude);
+        console.log('Geolocatie succesvol:', latitude, longitude);
+      },
+      error => {
+        currentLat = 52.3676;
+        currentLon = 4.9041;
+        getWeather(currentLat, currentLon, 'Amsterdam');
+        console.warn('Geolocatie mislukt, fallback naar Amsterdam:', error.message);
+        alert('Locatie kan niet worden bepaald. Standaardlocatie: Amsterdam.');
+      }
+    );
+  } else {
+    currentLat = 52.3676;
+    currentLon = 4.9041;
+    getWeather(currentLat, currentLon, 'Amsterdam');
+    console.warn('Geolocatie niet ondersteund, fallback naar Amsterdam');
+    alert('Geolocatie wordt niet ondersteund. Standaardlocatie: Amsterdam.');
   }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  const searchBtn = document.getElementById('search-btn');
+  const searchInput = document.getElementById('search-input');
+  const unitToggle = document.getElementById('unit-toggle');
+
+  if (searchBtn && searchInput && unitToggle) {
+    searchBtn.addEventListener('click', searchWeather);
+    searchInput.addEventListener('keypress', e => {
+      if (e.key === 'Enter') searchWeather();
+    });
+    unitToggle.addEventListener('click', toggleUnit);
+    init();
+  } else {
+    console.error('Een of meer UI-elementen niet gevonden');
+    alert('Fout: Kan de app niet initialiseren. Controleer de pagina-opbouw.');
+  }
+});

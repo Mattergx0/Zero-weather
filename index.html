@@ -4,62 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zero Weather</title>
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="icon.png">
-    <meta name="theme-color" content="#007AFF">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="logo.png" type="image/png">
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
 <body>
 
-    <!-- Loading Screen -->
-    <div id="loading-screen">
-        <div class="loader"></div>
-        <p>Zero Weather laden...</p>
-    </div>
+<div id="loading-screen">Zero Weather aan het laden...</div>
 
-    <!-- Home Page -->
-    <div id="home-page" class="page active">
-        <header class="header">
-            <div class="search-bar">
-                <input type="text" id="city-input" placeholder="Zoek stad...">
-                <button onclick="searchCity()">🔍</button>
-            </div>
-            <h1>Zero Weather</h1>
-        </header>
+<header>
+    <img src="logo.png" alt="Zero Weather Logo" class="logo">
+    <h1>Zero Weather</h1>
+</header>
 
-        <section class="current-weather" id="current-weather">
-            <h2 id="current-city">--</h2>
-            <div class="temp">
-                <span id="current-temp">--°C</span>
-                <img id="current-icon" src="" alt="Weer icoon">
-            </div>
-            <p id="current-desc">--</p>
-            <div class="weather-stats">
-                <div><i>💧</i><span id="humidity">--%</span><p>Vochtigheid</p></div>
-                <div><i>🌬️</i><span id="wind">-- km/u</span><p>Wind</p></div>
-                <div><i>🌡️</i><span id="feels-like">--°C</span><p>Gevoelstemperatuur</p></div>
-            </div>
-        </section>
+<main>
+    <section id="current-weather" class="card">
+        <h2 id="current-city">Locatie...</h2>
+        <img id="current-icon" src="" alt="Weer icoon">
+        <p id="current-temp">0°C</p>
+        <p id="current-desc">Beschrijving</p>
+        <p id="humidity">Luchtvochtigheid:</p>
+        <p id="wind">Wind:</p>
+        <p id="feels-like">Voelt als:</p>
+        <p id="sunrise">Zonsopgang:</p>
+        <p id="sunset">Zonsondergang:</p>
+    </section>
 
-        <section class="forecast" id="forecast">
-            <h2>10-Daagse Voorspelling</h2>
-            <div id="forecast-container"></div>
-        </section>
+    <section id="forecast" class="card">
+        <h2>Komende uren</h2>
+        <div id="forecast-container"></div>
+    </section>
 
-        <button class="btn" onclick="showPage('map-page')">🌧️ Bekijk Regenkaart</button>
-    </div>
-
-    <!-- Map Page -->
-    <div id="map-page" class="page">
-        <header class="header small">
-            <button onclick="showPage('home-page')">← Terug</button>
-            <h2>Regenkaart</h2>
-        </header>
+    <section id="map-section" class="card">
+        <h2>Regenkaart</h2>
         <div id="map"></div>
-    </div>
+    </section>
+</main>
 
-    <script src="script.js"></script>
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<footer>
+    Made by Liamgx0 
+</footer>
+
+<script src="script.js"></script>
 </body>
 </html>

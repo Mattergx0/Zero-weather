@@ -9,6 +9,8 @@ function showLoading() {
   if (loading && weatherIcon) {
     loading.classList.remove('hidden');
     weatherIcon.classList.add('hidden');
+  } else {
+    console.error('Ladelement of weericoon niet gevonden');
   }
 }
 
@@ -18,6 +20,8 @@ function hideLoading() {
   if (loading && weatherIcon) {
     loading.classList.add('hidden');
     weatherIcon.classList.remove('hidden');
+  } else {
+    console.error('Ladelement of weericoon niet gevonden');
   }
 }
 
@@ -137,7 +141,10 @@ function getHourlyForecast(lat, lon) {
 function toggleUnit() {
   isCelsius = !isCelsius;
   unit = isCelsius ? "metric" : "imperial";
-  document.getElementById('unit-toggle').textContent = isCelsius ? "°C/°F" : "°F/°C";
+  const unitToggle = document.getElementById('unit-toggle');
+  if (unitToggle) {
+    unitToggle.textContent = isCelsius ? "°C/°F" : "°F/°C";
+  }
   if (currentLat && currentLon) {
     getWeather(currentLat, currentLon);
   } else {
@@ -146,11 +153,16 @@ function toggleUnit() {
 }
 
 function searchWeather() {
-  const city = document.getElementById('search-input').value.trim();
-  if (city) {
-    getWeather(null, null, city);
+  const searchInput = document.getElementById('search-input');
+  if (searchInput) {
+    const city = searchInput.value.trim();
+    if (city) {
+      getWeather(null, null, city);
+    } else {
+      alert('Voer een geldige locatie in!');
+    }
   } else {
-    alert('Voer een geldige locatie in!');
+    console.error('Zoekinvoer niet gevonden');
   }
 }
 

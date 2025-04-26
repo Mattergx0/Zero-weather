@@ -14,7 +14,11 @@ function hideLoading() {
 }
 
 function loadMap(lat, lon) {
-  const map = L.map('map').setView([lat, lon], 10);
+  const map = L.map('map', {
+    zoomControl: true,
+    attributionControl: true,
+    gestureHandling: true
+  }).setView([lat, lon], 10);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '© OpenStreetMap'
@@ -81,12 +85,12 @@ function getHourlyForecast(lat, lon) {
 
       hourlyData.forEach(hour => {
         const hourDiv = document.createElement('div');
-        hourDiv.classList.add('hour');
+        hourDiv.classList.add('hour', 'snap-center');
         hourDiv.innerHTML = `
-          <p class="font-semibold">${new Date(hour.dt * 1000).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })}</p>
-          <img src="https://openweathermap.org/img/wn/${hour.weather[0].icon}.png" alt="Weer icoon">
-          <p>${Math.round(hour.main.temp)}${isCelsius ? '°C' : '°F'}</p>
-          <p class="text-sm">${hour.weather[0].description.charAt(0).toUpperCase() + hour.weather[0].description.slice(1)}</p>
+          <p class="font-semibold text-xs">${new Date(hour.dt * 1000).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })}</p>
+          <img src="https://openweathermap.org/img/wn/${hour.weather[0].icon}.png" alt="Weer icoon" class="w-8">
+          <p class="text-xs">${Math.round(hour.main.temp)}${isCelsius ? '°C' : '°F'}</p>
+          <p class="text-xs">${hour.weather[0].description.charAt(0).toUpperCase() + hour.weather[0].description.slice(1)}</p>
         `;
         hourlyForecast.appendChild(hourDiv);
       });
@@ -126,7 +130,6 @@ function init() {
         getWeather(latitude, longitude);
       },
       error => {
-        // Fallback to a default location (Amsterdam)
         currentLat = 52.3676;
         currentLon = 4.9041;
         getWeather(currentLat, currentLon, 'Amsterdam');
@@ -134,7 +137,6 @@ function init() {
       }
     );
   } else {
-    // Fallback to Amsterdam if geolocation is not supported
     currentLat = 52.3676;
     currentLon = 4.9041;
     getWeather(currentLat, currentLon, 'Amsterdam');
@@ -143,9 +145,38 @@ function init() {
 }
 
 document.getElementById('search-btn').addEventListener('click', searchWeather);
-document.getElementById('search-input').addEventListener('keypress', (e) => {
+document.getElementById('search-input').addEventListener('keypress', e => {
   if (e.key === 'Enter') searchWeather();
 });
 document.getElementById('unit-toggle').addEventListener('click', toggleUnit);
 
-document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('DOMContentLoaded', () => {
+  init();
+});
+
+// Service Worker
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open('zero-weather-cache-v2').then(cache => {
+      return cache.addAll([
+        '/',
+        '/index.html',
+        '/style.css',
+        '/script.js',
+        '/manifest.json',
+        '/icon-180.png',
+        '/icon-192.png',
+        '/icon-512.png',
+        '/icon-maskable.png'
+      ]);
+    })
+  );
+});
+
+self.addEventListener('fetch', event => {
+  event.respondWith(
+    caches.match(event.request).then(response => {
+      return response || fetch(event.request);
+    })
+  );
+});

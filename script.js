@@ -52,6 +52,30 @@ function loadMap(lat, lon) {
   }
 }
 
+function getWeatherTip(data) {
+  const temp = data.main.temp;
+  const weatherCode = data.weather[0].icon;
+  const windSpeed = data.wind.speed;
+
+  if (weatherCode.includes('09') || weatherCode.includes('10')) {
+    return "Neem een paraplu mee, buien verwacht!";
+  } else if (weatherCode.includes('01d')) {
+    return "Perfect voor een wandeling, vergeet je zonnebril niet!";
+  } else if (weatherCode.includes('01n')) {
+    return "Heldere nacht, ideaal om sterren te kijken!";
+  } else if (weatherCode.includes('13')) {
+    return "Pas op voor gladheid, sneeuw mogelijk!";
+  } else if (temp < 5) {
+    return "Kleed je warm aan, het wordt fris vandaag!";
+  } else if (windSpeed > 7) {
+    return "Harde wind vandaag, ideaal voor vliegeren!";
+  } else if (temp > 25) {
+    return "Zomers weer, blijf gehydrateerd!";
+  } else {
+    return "Gewoon een mooie dag, geniet ervan!";
+  }
+}
+
 function getWeather(lat, lon, city = null) {
   showLoading();
   const url = city
@@ -78,6 +102,7 @@ function getWeather(lat, lon, city = null) {
       const sunrise = new Date(data.sys.sunrise * 1000).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
       const sunset = new Date(data.sys.sunset * 1000).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
       const icon = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
+      const weatherTip = getWeatherTip(data);
 
       document.getElementById('location').textContent = location;
       document.getElementById('temperature').textContent = `${temperature}${isCelsius ? '°C' : '°F'}`;
@@ -87,6 +112,7 @@ function getWeather(lat, lon, city = null) {
       document.getElementById('pressure').textContent = pressure;
       document.getElementById('sunrise-sunset').textContent = `Zonsopgang/Zonsondergang: ${sunrise}/${sunset}`;
       document.getElementById('weather-icon').src = icon;
+      document.getElementById('weather-tip').textContent = `Weertip: ${weatherTip}`;
 
       currentLat = data.coord.lat;
       currentLon = data.coord.lon;

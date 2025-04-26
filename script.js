@@ -2,6 +2,7 @@ const apiKey = "51449fa3b241b52737fe2b3626795957";
 let unit = "metric";
 let isCelsius = true;
 let currentLat, currentLon;
+const maxHistory = 5;
 
 function showLoading() {
   const loading = document.getElementById('loading');
@@ -76,6 +77,42 @@ function getWeatherTip(data) {
   }
 }
 
+function saveLocation(city) {
+  let history = JSON.parse(localStorage.getItem('locationHistory')) || [];
+  history = history.filter(loc => loc.toLowerCase() !== city.toLowerCase());
+  history.unshift(city);
+  if (history.length > maxHistory) {
+    history.pop();
+  }
+  localStorage.setItem('locationHistory', JSON.stringify(history));
+}
+
+function showLocationSuggestions() {
+  const suggestionsDiv = document.getElementById('location-suggestions');
+  const searchInput = document.getElementById('search-input');
+  if (!suggestionsDiv || !searchInput) return;
+
+  const history = JSON.parse(localStorage.getItem('locationHistory')) || [];
+  if (history.length === 0) {
+    suggestionsDiv.classList.add('hidden');
+    return;
+  }
+
+  suggestionsDiv.innerHTML = '';
+  history.forEach(city => {
+    const suggestion = document.createElement('div');
+    suggestion.classList.add('suggestion-item', 'p-2', 'hover:bg-gray-200', 'cursor-pointer', 'text-sm');
+    suggestion.textContent = city;
+    suggestion.addEventListener('click', () => {
+      searchInput.value = city;
+      suggestionsDiv.classList.add('hidden');
+      getWeather(null, null, city);
+    });
+    suggestionsDiv.appendChild(suggestion);
+  });
+  suggestionsDiv.classList.remove('hidden');
+}
+
 function getWeather(lat, lon, city = null) {
   showLoading();
   const url = city
@@ -113,6 +150,10 @@ function getWeather(lat, lon, city = null) {
       document.getElementById('sunrise-sunset').textContent = `Zonsopgang/Zonsondergang: ${sunrise}/${sunset}`;
       document.getElementById('weather-icon').src = icon;
       document.getElementById('weather-tip').textContent = `Weertip: ${weatherTip}`;
+
+      if (city) {
+        saveLocation(city);
+      }
 
       currentLat = data.coord.lat;
       currentLon = data.coord.lon;
@@ -180,15 +221,17 @@ function toggleUnit() {
 
 function searchWeather() {
   const searchInput = document.getElementById('search-input');
-  if (searchInput) {
+  const suggestionsDiv = document.getElementById('location-suggestions');
+  if (searchInput && suggestionsDiv) {
     const city = searchInput.value.trim();
     if (city) {
       getWeather(null, null, city);
+      suggestionsDiv.classList.add('hidden');
     } else {
       alert('Voer een geldige locatie in!');
     }
   } else {
-    console.error('Zoekinvoer niet gevonden');
+    console.error('Zoekinvoer of suggestiediv niet gevonden');
   }
 }
 
@@ -224,6 +267,25 @@ function init() {
     getWeather(currentLat, currentLon, 'Amsterdam');
     console.warn('Geolocatie niet ondersteund, fallback naar Amsterdam');
     alert('Geolocatie wordt niet ondersteund. Standaardlocatie: Amsterdam.');
+  }
+
+  // Locatiegeschiedenis event listeners
+  const searchInput = document.getElementById('search-input');
+  const suggestionsDiv = document.getElementById('location-suggestions');
+  if (searchInput && suggestionsDiv) {
+    searchInput.addEventListener('focus', showLocationSuggestions);
+    searchInput.addEventListener('input', () => {
+      if (!searchInput.value.trim()) {
+        showLocationSuggestions();
+      } else {
+        suggestionsDiv.classList.add('hidden');
+      }
+    });
+    document.addEventListener('click', e => {
+      if (!searchInput.contains(e.target) && !suggestionsDiv.contains(e.target)) {
+        suggestionsDiv.classList.add('hidden');
+      }
+    });
   }
 }
 

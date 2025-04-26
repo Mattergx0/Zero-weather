@@ -31,9 +31,10 @@
   <main class="container mx-auto flex-grow p-4">
     <section class="weather-info bg-white bg-opacity-20 rounded-2xl p-6 text-center shadow-lg mb-6">
       <h2 id="location" class="text-3xl font-semibold">Laden...</h2>
+      <div id="loading" class="hidden text-lg my-4">Gegevens worden geladen...</div>
       <div class="flex justify-center items-center gap-4 my-4">
         <span id="temperature" class="text-5xl font-bold">-°C</span>
-        <img id="weather-icon" src="" alt="Weer icoon" class="w-20">
+        <img id="weather-icon" src="" alt="Weer icoon" class="w-20 hidden">
       </div>
       <p id="description" class="text-lg">Laden...</p>
       <div class="grid grid-cols-2 gap-4 mt-4 text-lg">

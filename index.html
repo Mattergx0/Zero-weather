@@ -13,8 +13,8 @@
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-180.png">
   <link rel="icon" href="icon-192.png">
-  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
   <script defer src="script.js"></script>
 </head>
 <body class="bg-gradient-to-br from-blue-500 to-blue-200 text-white min-h-screen flex flex-col font-sans">
@@ -25,7 +25,7 @@
         <h1 class="text-lg font-bold">Zero Weather</h1>
       </div>
       <div class="flex items-center gap-2">
-        <input id="search-input" type="text" placeholder="Zoek locatie..." class="p-2 rounded-lg text-black text-sm w-28 sm:w-36">
+        <input id="search-input" type="text" placeholder="Zoek locatie..." class="p-2 rounded-lg text-black text-sm w-28 sm:w-36" aria-label="Zoek een locatie">
         <button id="search-btn" class="bg-blue-600 p-2 rounded-lg hover:bg-blue-700 text-sm" aria-label="Zoek locatie">Zoek</button>
         <button id="unit-toggle" class="bg-blue-600 p-2 rounded-lg hover:bg-blue-700 text-sm" aria-label="Wissel tussen Celsius en Fahrenheit">°C/°F</button>
       </div>

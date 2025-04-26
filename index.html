@@ -17,8 +17,8 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
   <script defer src="script.js"></script>
 </head>
-<body class="bg-gradient-to-br from-blue-500 to-blue-200 text-white min-h-screen flex flex-col font-sans">
-  <header class="bg-blue-800 bg-opacity-80 p-3 shadow-lg">
+<body class="bg-gradient-to-br from-blue-500 to-blue-200 text-white min-h-screen flex flex-col font-sans theme-blue">
+  <header class="bg-blue-800 bg-opacity-80 p-3 shadow-lg fixed top-0 w-full z-20">
     <div class="container mx-auto flex justify-between items-center px-3">
       <div class="flex items-center gap-3">
         <img src="icon.png" alt="Zero Weather Logo" class="w-8 h-8">
@@ -27,42 +27,62 @@
       <div class="flex items-center gap-2">
         <input id="search-input" type="text" placeholder="Zoek locatie..." class="p-2 rounded-lg text-black text-sm w-28 sm:w-36" aria-label="Zoek een locatie">
         <button id="search-btn" class="bg-blue-600 p-2 rounded-lg hover:bg-blue-700 text-sm" aria-label="Zoek locatie">Zoek</button>
-        <button id="unit-toggle" class="bg-blue-600 p-2 rounded-lg hover:bg-blue-700 text-sm" aria-label="Wissel tussen Celsius en Fahrenheit">°C/°F</button>
+        <a href="settings.html" class="bg-blue-600 p-2 rounded-lg hover:bg-blue-700 text-sm" aria-label="Instellingen"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.573-1.066z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg></a>
       </div>
     </div>
   </header>
 
-  <main class="container mx-auto flex-grow p-3 pb-16">
-    <section class="weather-info bg-white bg-opacity-20 rounded-xl p-5 text-center shadow-lg mb-5">
-      <h2 id="location" class="text-xl font-semibold">Laden...</h2>
-      <div id="loading" class="hidden text-sm my-3">Gegevens worden geladen...</div>
-      <div class="flex justify-center items-center gap-3 my-3">
-        <span id="temperature" class="text-3xl font-bold">-°C</span>
-        <img id="weather-icon" src="" alt="Weer icoon" class="w-12 hidden">
+  <main class="flex-grow pt-16 pb-16">
+    <div id="map" class="h-1/2 w-full fixed top-16 z-10"></div>
+    <div id="panel" class="bg-white bg-opacity-20 rounded-t-xl p-5 mt-1/2 min-h-1/2 shadow-lg relative z-20 transition-transform duration-300">
+      <button id="panel-toggle" class="absolute top-2 right-2 bg-blue-600 p-2 rounded-full hover:bg-blue-700" aria-label="Paneel openen/sluiten">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+      </button>
+      <div id="map-layers" class="flex gap-2 mb-3">
+        <button id="layer-precipitation" class="bg-blue-600 p-2 rounded-lg hover:bg-blue-700 text-sm active">Neerslag</button>
+        <button id="layer-temperature" class="bg-blue-600 p-2 rounded-lg hover:bg-blue-700 text-sm">Temperatuur</button>
+        <button id="layer-wind" class="bg-blue-600 p-2 rounded-lg hover:bg-blue-700 text-sm">Wind</button>
       </div>
-      <p id="description" class="text-sm">Laden...</p>
-      <div class="grid grid-cols-2 gap-3 mt-3 text-sm">
-        <p id="humidity">Luchtvochtigheid: - %</p>
-        <p id="wind">Wind: - m/s</p>
-        <p id="pressure">Druk: - hPa</p>
-        <p id="sunrise-sunset">Zonsopgang/Zonsondergang: -</p>
+      <div id="tab-content">
+        <div id="tab-today" class="tab-pane">
+          <h2 id="location" class="text-xl font-semibold text-center">Laden...</h2>
+          <div id="loading" class="hidden text-sm my-3 text-center">Gegevens worden geladen...</div>
+          <div class="flex justify-center items-center gap-3 my-3">
+            <span id="temperature" class="text-3xl font-bold">-°C</span>
+            <img id="weather-icon" src="" alt="Weer icoon" class="w-12 hidden">
+          </div>
+          <p id="description" class="text-sm text-center">Laden...</p>
+          <div class="grid grid-cols-2 gap-3 mt-3 text-sm">
+            <p id="humidity">Luchtvochtigheid: - %</p>
+            <p id="wind">Wind: - m/s</p>
+            <p id="pressure">Druk: - hPa</p>
+            <p id="sunrise-sunset">Zonsopgang/Zonsondergang: -</p>
+          </div>
+          <p id="weather-tip" class="text-sm mt-3 italic text-center">Weertip: Laden...</p>
+        </div>
+        <div id="tab-hourly" class="tab-pane hidden">
+          <h3 class="text-lg font-semibold mb-3">Uurlijkse Voorspelling</h3>
+          <div id="hourly-forecast" class="flex gap-3 overflow-x-auto pb-3 snap-x snap-mandatory"></div>
+        </div>
+        <div id="tab-week" class="tab-pane hidden">
+          <h3 class="text-lg font-semibold mb-3">Weekvoorspelling</h3>
+          <div id="weekly-forecast" class="grid gap-3"></div>
+        </div>
+        <div id="tab-map" class="tab-pane hidden">
+          <h3 class="text-lg font-semibold mb-3">Regenkaart</h3>
+          <p class="text-sm text-center">Gebruik de kaart hierboven voor details.</p>
+        </div>
       </div>
-      <p id="weather-tip" class="text-sm mt-3 italic">Weertip: Laden...</p>
-    </section>
-
-    <section class="map-section mb-5">
-      <h3 class="text-lg font-semibold mb-3">Regenkaart</h3>
-      <div id="map" class="h-64 sm:h-72 rounded-xl shadow-lg"></div>
-    </section>
-
-    <section class="hourly-forecast">
-      <h3 class="text-lg font-semibold mb-3">Uurlijkse Voorspelling</h3>
-      <div id="hourly-forecast" class="flex gap-3 overflow-x-auto pb-3 snap-x snap-mandatory"></div>
-    </section>
+    </div>
   </main>
 
-  <footer class="bg-blue-800 bg-opacity-80 p-3 text-center">
-    <p class="text-xs">© 2025 Zero Weather. Alle rechten voorbehouden.</p>
-  </footer>
+  <nav class="bg-blue-800 bg-opacity-80 p-3 fixed bottom-0 w-full shadow-lg z-20">
+    <div class="container mx-auto flex justify-around">
+      <button id="tab-btn-today" class="tab-btn bg-blue-600 p-2 rounded-lg hover:bg-blue-700 text-sm active" aria-label="Vandaag">Vandaag</button>
+      <button id="tab-btn-hourly" class="tab-btn bg-blue-600 p-2 rounded-lg hover:bg-blue-700 text-sm" aria-label="Uurlijks">Uurlijks</button>
+      <button id="tab-btn-week" class="tab-btn bg-blue-600 p-2 rounded-lg hover:bg-blue-700 text-sm" aria-label="Week">Week</button>
+      <button id="tab-btn-map" class="tab-btn bg-blue-600 p-2 rounded-lg hover:bg-blue-700 text-sm" aria-label="Kaart">Kaart</button>
+    </div>
+  </nav>
 </body>
 </html>

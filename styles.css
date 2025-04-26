@@ -1,106 +1,47 @@
-/* Algemene body styling */
 body {
-  margin: 0;
-  font-family: 'Poppins', sans-serif;
-  background: linear-gradient(to top right, #0099ff, #66ccff);
-  color: white;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-/* Header styling */
-header {
-  background: rgba(0, 0, 0, 0.3);
-  padding: 20px;
-  text-align: center;
-}
-
-.logo-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 15px;
-}
-
-.logo {
-  width: 80px;
-}
-
-h1 {
-  font-size: 2.5rem;
-  letter-spacing: 2px;
-}
-
-/* Hoofdinformatie sectie */
-.weather-info {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  padding: 30px;
-  text-align: center;
-  margin: 20px;
-}
-
-.temp {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 15px;
-}
-
-#weather-icon {
-  width: 80px;
-  height: auto;
-}
-
-.extra-info p {
-  font-size: 1.1rem;
-  margin: 5px 0;
-}
-
-h2, p {
-  margin: 0;
-}
-
-/* Regenkaart styling */
-.map-section {
-  margin-top: 30px;
+  font-family: 'Inter', sans-serif;
 }
 
 #map {
-  height: 300px;
-  border-radius: 15px;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-}
-
-/* Uurlijkse voorspelling */
-.hourly-forecast {
-  margin-top: 30px;
-}
-
-.forecast-container {
-  display: flex;
-  justify-content: space-evenly;
-  gap: 10px;
-  flex-wrap: wrap;
+  height: 100%;
 }
 
 .hour {
   background: rgba(255, 255, 255, 0.2);
-  border-radius: 15px;
-  padding: 10px;
+  border-radius: 12px;
+  padding: 12px;
   text-align: center;
-  width: 80px;
+  min-width: 100px;
+  transition: transform 0.3s ease;
+}
+
+.hour:hover {
+  transform: scale(1.05);
 }
 
 .hour img {
   width: 50px;
 }
 
-/* Footer styling */
-footer {
-  background: rgba(0, 0, 0, 0.3);
-  text-align: center;
-  padding: 15px;
-  font-size: 0.9em;
+#hourly-forecast::-webkit-scrollbar {
+  height: 8px;
+}
+
+#hourly-forecast::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+#hourly-forecast::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+.weather-info {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

@@ -1,12 +1,12 @@
-/* System font for cross-platform consistency */
+/* System font voor cross-platform consistentie */
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overscroll-behavior-y: none; /* Prevent pull-to-refresh on Android */
+  overscroll-behavior-y: none; /* Voorkom pull-to-refresh op Android */
 }
 
-/* Safe area handling for iOS and Android */
+/* Safe area handling voor iOS en Android */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
   body {
     padding-top: env(safe-area-inset-top);
@@ -16,13 +16,13 @@ body {
   }
 }
 
-/* Map styling */
+/* Kaart styling */
 #map {
   height: 100%;
   border-radius: 12px;
 }
 
-/* Hourly forecast card */
+/* Uurlijkse voorspelling kaart */
 .hour {
   background: rgba(255, 255, 255, 0.2);
   border-radius: 12px;
@@ -33,29 +33,29 @@ body {
   touch-action: pan-x;
 }
 
-/* Hover effect only for non-touch devices */
+/* Hover-effect alleen voor non-touch apparaten */
 @media (hover: hover) {
   .hour:hover {
     transform: scale(1.05);
   }
 }
 
-/* Touch-friendly buttons and inputs */
+/* Touch-vriendelijke knoppen en inputs */
 button, input {
   -webkit-appearance: none;
   appearance: none;
   touch-action: manipulation;
-  min-height: 44px; /* Minimum tap target size */
+  min-height: 44px; /* Minimum tap target grootte */
   min-width: 44px;
 }
 
-/* Scroll snapping for hourly forecast */
+/* Scroll snapping voor uurlijkse voorspelling */
 #hourly-forecast {
   scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  -webkit-overflow-scrolling: touch; /* Soepele scrolling op iOS */
 }
 
-/* Custom scrollbar */
+/* Aangepaste scrollbar */
 #hourly-forecast::-webkit-scrollbar {
   height: 5px;
 }
@@ -70,23 +70,23 @@ button, input {
   border-radius: 4px;
 }
 
-/* Weather info animation */
+/* Weerinfo animatie */
 .weather-info {
   animation: fadeIn 0.5s ease-in;
 }
 
-/* Fade-in animation */
+/* Fade-in animatie */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
-/* Hide weather icon during loading */
-#loading:not(.hidden) ~ .flex .weather-icon {
+/* Verberg weericoon tijdens laden */
+#loading:not(.hidden) ~ .flex #weather-icon {
   display: none;
 }
 
-/* Media query for larger screens */
+/* Media query voor grotere schermen */
 @media (min-width: 640px) {
   .hour {
     min-width: 80px;

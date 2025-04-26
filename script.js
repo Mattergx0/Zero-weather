@@ -1,4 +1,5 @@
-const apiKey = 'YOUR_API_KEY'; // ← vul je OpenWeatherMap API key hier in!
+// Jouw echte OpenWeatherMap API key
+const apiKey = '51449fa3b241b52737fe2b3626795957';
 
 // Pagina wisselen
 function showPage(pageId) {
@@ -9,14 +10,15 @@ function showPage(pageId) {
 // Weer ophalen
 async function fetchWeather(city = "Amsterdam") {
     try {
-        const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=nl`);
+        const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&lang=nl&appid=${apiKey}`);
         const data = await res.json();
         updateCurrentWeather(data);
 
-        const forecastRes = await fetch(`https://api.openweathermap.org/data/2.5/forecast/daily?q=${city}&cnt=10&appid=${apiKey}&units=metric&lang=nl`);
+        const forecastRes = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=metric&lang=nl&appid=${apiKey}`);
         const forecastData = await forecastRes.json();
         updateForecast(forecastData);
     } catch (err) {
+        console.error(err);
         alert('Fout bij ophalen weergegevens!');
     }
 }
@@ -27,7 +29,7 @@ function updateCurrentWeather(data) {
     document.getElementById('current-temp').innerText = Math.round(data.main.temp) + "°C";
     document.getElementById('current-desc').innerText = data.weather[0].description;
     document.getElementById('humidity').innerText = data.main.humidity + "%";
-    document.getElementById('wind').innerText = Math.round(data.wind.speed) + " km/u";
+    document.getElementById('wind').innerText = Math.round(data.wind.speed * 3.6) + " km/u"; // m/s naar km/u
     document.getElementById('feels-like').innerText = Math.round(data.main.feels_like) + "°C";
     document.getElementById('current-icon').src = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
 }
@@ -37,13 +39,14 @@ function updateForecast(data) {
     const container = document.getElementById('forecast-container');
     container.innerHTML = '';
 
-    data.list.forEach(day => {
+    data.list.slice(0, 10).forEach(day => {
         const el = document.createElement('div');
         el.className = 'forecast-day';
+        const date = new Date(day.dt_txt);
         el.innerHTML = `
-            <strong>${new Date(day.dt * 1000).toLocaleDateString('nl-NL', { weekday: 'short' })}</strong>
+            <strong>${date.toLocaleDateString('nl-NL', { weekday: 'short' })}</strong>
             <br>
-            🌡️ ${Math.round(day.temp.day)}°C
+            🌡️ ${Math.round(day.main.temp)}°C
             <br>
             ☁️ ${day.weather[0].main}
         `;
@@ -63,7 +66,7 @@ function searchCity() {
 window.addEventListener('load', () => {
     setTimeout(() => {
         document.getElementById('loading-screen').style.display = 'none';
-    }, 1500);
+    }, 1000);
 
     fetchWeather(); // standaard stad laden
 });

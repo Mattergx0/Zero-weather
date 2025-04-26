@@ -1,4 +1,4 @@
-/* Algemene styling */
+/* Algemene body styling */
 body {
   margin: 0;
   font-family: 'Poppins', sans-serif;
@@ -9,57 +9,98 @@ body {
   min-height: 100vh;
 }
 
+/* Header styling */
 header {
-  background: rgba(0, 0, 0, 0.2);
-  padding: 10px;
-  text-align: center;
-}
-
-.logo {
-  width: 60px;
-  margin-top: 10px;
-}
-
-main {
-  flex: 1;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
-}
-
-.weather-info {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
+  background: rgba(0, 0, 0, 0.3);
   padding: 20px;
   text-align: center;
 }
 
-.weather-info .temp {
+.logo-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 10px;
+  gap: 15px;
 }
 
-.temp img {
-  width: 60px;
+.logo {
+  width: 80px;
+}
+
+h1 {
+  font-size: 2.5rem;
+  letter-spacing: 2px;
+}
+
+/* Hoofdinformatie sectie */
+.weather-info {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 30px;
+  text-align: center;
+  margin: 20px;
+}
+
+.temp {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+}
+
+#weather-icon {
+  width: 80px;
+  height: auto;
+}
+
+.extra-info p {
+  font-size: 1.1rem;
+  margin: 5px 0;
+}
+
+h2, p {
+  margin: 0;
+}
+
+/* Regenkaart styling */
+.map-section {
+  margin-top: 30px;
 }
 
 #map {
   height: 300px;
   border-radius: 15px;
-  overflow: hidden;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
 }
 
-.map-section h3 {
-  text-align: center;
-  margin-bottom: 10px;
+/* Uurlijkse voorspelling */
+.hourly-forecast {
+  margin-top: 30px;
 }
 
-footer {
-  background: rgba(0, 0, 0, 0.2);
-  text-align: center;
+.forecast-container {
+  display: flex;
+  justify-content: space-evenly;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.hour {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 15px;
   padding: 10px;
+  text-align: center;
+  width: 80px;
+}
+
+.hour img {
+  width: 50px;
+}
+
+/* Footer styling */
+footer {
+  background: rgba(0, 0, 0, 0.3);
+  text-align: center;
+  padding: 15px;
   font-size: 0.9em;
 }

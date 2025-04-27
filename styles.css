@@ -43,16 +43,6 @@ body {
   background-color: #e5e7eb;
 }
 
-/* Weerwidget */
-#weather-widget {
-  z-index: 5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.25rem;
-  padding: 0.25rem;
-}
-
 /* Weerinfo achtergrond */
 .weather-info {
   background: rgba(255, 255, 255, 0.3);
@@ -102,7 +92,7 @@ body {
 }
 
 /* Touch-vriendelijke knoppen en inputs */
-button, input, a {
+button, input {
   -webkit-appearance: none;
   appearance: none;
   touch-action: manipulation;

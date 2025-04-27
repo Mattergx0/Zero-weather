@@ -56,18 +56,29 @@ function loadMap(lat, lon) {
 
 function setWeatherBackground(weatherCode) {
   const body = document.body;
-  body.classList.remove('bg-gradient-to-br', 'from-blue-500', 'to-blue-200', 'from-yellow-400', 'to-orange-200', 'from-gray-500', 'to-blue-300', 'from-blue-100', 'to-white', 'from-gray-400', 'to-gray-200');
+  body.classList.remove('bg-gradient-to-br', 'from-blue-500', 'to-blue-200', 'from-amber-300', 'to-orange-100', 'from-gray-600', 'to-blue-400', 'from-blue-200', 'to-gray-100', 'from-gray-500', 'to-gray-300');
+  const weatherInfo = document.querySelector('.weather-info');
   
   if (weatherCode.includes('01') || weatherCode.includes('02')) {
-    body.classList.add('bg-gradient-to-br', 'from-yellow-400', 'to-orange-200'); // Zonnig
+    body.classList.add('bg-gradient-to-br', 'from-amber-300', 'to-orange-100'); // Zonnig
+    weatherInfo.classList.add('text-black');
+    weatherInfo.classList.remove('text-white');
   } else if (weatherCode.includes('09') || weatherCode.includes('10') || weatherCode.includes('11')) {
-    body.classList.add('bg-gradient-to-br', 'from-gray-500', 'to-blue-300'); // Regen
+    body.classList.add('bg-gradient-to-br', 'from-gray-600', 'to-blue-400'); // Regen
+    weatherInfo.classList.add('text-white');
+    weatherInfo.classList.remove('text-black');
   } else if (weatherCode.includes('13')) {
-    body.classList.add('bg-gradient-to-br', 'from-blue-100', 'to-white'); // Sneeuw
+    body.classList.add('bg-gradient-to-br', 'from-blue-200', 'to-gray-100'); // Sneeuw
+    weatherInfo.classList.add('text-black');
+    weatherInfo.classList.remove('text-white');
   } else if (weatherCode.includes('03') || weatherCode.includes('04')) {
-    body.classList.add('bg-gradient-to-br', 'from-gray-400', 'to-gray-200'); // Bewolkt
+    body.classList.add('bg-gradient-to-br', 'from-gray-500', 'to-gray-300'); // Bewolkt
+    weatherInfo.classList.add('text-white');
+    weatherInfo.classList.remove('text-black');
   } else {
     body.classList.add('bg-gradient-to-br', 'from-blue-500', 'to-blue-200'); // Standaard
+    weatherInfo.classList.add('text-white');
+    weatherInfo.classList.remove('text-black');
   }
 }
 
@@ -292,10 +303,10 @@ function getHourlyForecast(lat, lon) {
         const hourDiv = document.createElement('div');
         hourDiv.classList.add('hour', 'snap-center');
         hourDiv.innerHTML = `
-          <p class="font-semibold text-xs">${new Date(hour.dt * 1000).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })}</p>
-          <img src="https://openweathermap.org/img/wn/${hour.weather[0].icon}.png" alt="Weer icoon" class="w-8">
-          <p class="text-xs">${Math.round(hour.main.temp)}${isCelsius ? '°C' : '°F'}</p>
-          <p class="text-xs">${hour.weather[0].description.charAt(0).toUpperCase() + hour.weather[0].description.slice(1)}</p>
+          <p class="font-semibold text-xs sm:text-sm">${new Date(hour.dt * 1000).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })}</p>
+          <img src="https://openweathermap.org/img/wn/${hour.weather[0].icon}.png" alt="Weer icoon" class="w-8 sm:w-10">
+          <p class="text-xs sm:text-sm">${Math.round(hour.main.temp)}${isCelsius ? '°C' : '°F'}</p>
+          <p class="text-xs sm:text-sm">${hour.weather[0].description.charAt(0).toUpperCase() + hour.weather[0].description.slice(1)}</p>
         `;
         hourlyForecast.appendChild(hourDiv);
       });

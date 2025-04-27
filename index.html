@@ -35,10 +35,6 @@
 
   <main class="container mx-auto flex-grow p-3 pb-16 max-w-7xl">
     <section class="weather-info bg-white bg-opacity-30 rounded-xl p-5 text-center shadow-lg mb-5 relative backdrop-filter backdrop-blur-sm">
-      <div id="weather-widget" class="absolute top-3 right-3 w-10 h-10 sm:w-12 sm:h-12 bg-blue-600 rounded-full flex items-center justify-center cursor-pointer hover:bg-blue-700 transition-colors" title="Weer voor andere locatie">
-        <span id="widget-temp" class="text-xs sm:text-sm">-</span>
-        <img id="widget-icon" src="" alt="Weer icoon" class="w-5 h-5 sm:w-6 sm:h-6 hidden">
-      </div>
       <h2 id="location" class="text-[1.25rem] sm:text-[1.5rem] font-semibold">Laden...</h2>
       <div id="loading" class="hidden text-sm my-3">Gegevens worden geladen...</div>
       <div class="flex justify-center items-center gap-3 my-3">
@@ -60,7 +56,6 @@
       <canvas id="weather-trend" class="mt-5 max-w-full h-32"></canvas>
       <div class="mt-3">
         <button id="mark-favorite" class="bg-blue-600 p-2 rounded-lg hover:bg-blue-700 text-sm" aria-label="Markeer als favoriet">⭐ Markeer als favoriet</button>
-        <a href="adventure.html" class="inline-block bg-blue-600 p-2 rounded-lg hover:bg-blue-700 text-sm ml-2" aria-label="Naar Weeravontuur">🌍 Weeravontuur</a>
       </div>
     </section>
 

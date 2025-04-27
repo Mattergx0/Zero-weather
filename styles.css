@@ -1,12 +1,12 @@
-/* System font voor cross-platform consistentie */
+/* System font voor moderne look */
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overscroll-behavior-y: none; /* Voorkom pull-to-refresh op Android */
+  overscroll-behavior-y: none;
 }
 
-/* Safe area handling voor iOS en Android */
+/* Safe area handling */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
   body {
     padding-top: env(safe-area-inset-top);
@@ -53,10 +53,11 @@ body {
   padding: 0.25rem;
 }
 
-/* Weerinfo achtergrond voor leesbaarheid */
+/* Weerinfo achtergrond */
 .weather-info {
   background: rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(4px);
+  animation: fadeIn 0.5s ease-in;
 }
 
 /* Tekstschaduw voor lichte achtergronden */
@@ -64,13 +65,23 @@ body {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
-/* Weertip en activiteitentip styling */
-#weather-tip, #activity-tip {
+/* Weertip, activiteitentip, weerquote */
+#weather-tip, #activity-tip, #weather-quote {
   background: rgba(255, 255, 255, 0.4);
   padding: 0.5rem;
   border-radius: 8px;
   display: inline-block;
   margin-top: 0.25rem;
+}
+
+/* Weeranimaties */
+.weather-animate {
+  animation: weatherPulse 2s infinite ease-in-out;
+}
+
+@keyframes weatherPulse {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
 }
 
 /* Uurlijkse voorspelling kaart */
@@ -84,7 +95,6 @@ body {
   touch-action: pan-x;
 }
 
-/* Hover-effect alleen voor non-touch apparaten */
 @media (hover: hover) {
   .hour:hover {
     transform: scale(1.05);
@@ -92,21 +102,21 @@ body {
 }
 
 /* Touch-vriendelijke knoppen en inputs */
-button, input {
+button, input, a {
   -webkit-appearance: none;
   appearance: none;
   touch-action: manipulation;
-  min-height: 2.75rem; /* Minimum tap target grootte */
+  min-height: 2.75rem;
   min-width: 2.75rem;
 }
 
-/* Scroll snapping voor uurlijkse voorspelling */
+/* Scroll snapping */
 #hourly-forecast {
   scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch; /* Soepele scrolling op iOS */
+  -webkit-overflow-scrolling: touch;
 }
 
-/* Aangepaste scrollbar */
+/* Scrollbar */
 #hourly-forecast::-webkit-scrollbar {
   height: 5px;
 }
@@ -119,11 +129,6 @@ button, input {
 #hourly-forecast::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.3);
   border-radius: 4px;
-}
-
-/* Weerinfo animatie */
-.weather-info {
-  animation: fadeIn 0.5s ease-in;
 }
 
 /* Fade-in animatie */
@@ -139,48 +144,26 @@ button, input {
 
 /* Responsieve media queries */
 @media (max-width: 359px) {
-  #search-input {
-    width: 7rem;
-  }
-  .weather-info {
-    padding: 0.75rem;
-  }
-  .hour {
-    min-width: 4rem;
-  }
+  #search-input { width: 7rem; }
+  .weather-info { padding: 0.75rem; }
+  .hour { min-width: 4rem; }
 }
 
 @media (min-width: 360px) {
-  #search-input {
-    width: 8rem;
-  }
+  #search-input { width: 8rem; }
 }
 
 @media (min-width: 640px) {
-  #search-input {
-    width: 10rem;
-  }
-  .hour {
-    min-width: 5rem;
-    padding: 0.75rem;
-  }
-  .weather-info {
-    padding: 1.25rem;
-  }
+  #search-input { width: 10rem; }
+  .hour { min-width: 5rem; padding: 0.75rem; }
+  .weather-info { padding: 1.25rem; }
 }
 
 @media (min-width: 768px) {
-  #search-input {
-    width: 12rem;
-  }
-  .hour {
-    min-width: 5.5rem;
-  }
+  #search-input { width: 12rem; }
+  .hour { min-width: 5.5rem; }
 }
 
 @media (min-width: 1024px) {
-  .container {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
+  .container { padding-left: 1rem; padding-right: 1rem; }
 }

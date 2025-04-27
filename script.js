@@ -1,9 +1,8 @@
 const apiKey = "51449fa3b241b52737fe2b3626795957";
-let unit = "metric";
-let isCelsius = true;
 let currentLat, currentLon;
 const maxHistory = 5;
 let widgetCityIndex = 0;
+let lastWeatherData = null;
 
 function showLoading() {
   const loading = document.getElementById('loading');
@@ -11,8 +10,6 @@ function showLoading() {
   if (loading && weatherIcon) {
     loading.classList.remove('hidden');
     weatherIcon.classList.add('hidden');
-  } else {
-    console.error('Ladelement of weericoon niet gevonden');
   }
 }
 
@@ -22,17 +19,12 @@ function hideLoading() {
   if (loading && weatherIcon) {
     loading.classList.add('hidden');
     weatherIcon.classList.remove('hidden');
-  } else {
-    console.error('Ladelement of weericoon niet gevonden');
   }
 }
 
 function loadMap(lat, lon) {
   const mapElement = document.getElementById('map');
-  if (!mapElement) {
-    console.error('Kaartelement niet gevonden');
-    return;
-  }
+  if (!mapElement) return;
   try {
     const map = L.map('map', {
       zoomControl: true,
@@ -47,36 +39,35 @@ function loadMap(lat, lon) {
       maxZoom: 19,
       opacity: 0.6
     }).addTo(map);
-    console.log('Kaart succesvol geladen voor lat:', lat, 'lon:', lon);
   } catch (error) {
     console.error('Fout bij het laden van de kaart:', error);
-    alert('Fout bij het laden van de regenkaart. Probeer het opnieuw.');
+    alert('Fout bij het laden van de regenkaart.');
   }
 }
 
 function setWeatherBackground(weatherCode) {
   const body = document.body;
-  body.classList.remove('bg-gradient-to-br', 'from-blue-500', 'to-blue-200', 'from-amber-300', 'to-orange-100', 'from-gray-600', 'to-blue-400', 'from-blue-200', 'to-gray-100', 'from-gray-500', 'to-gray-300');
   const weatherInfo = document.querySelector('.weather-info');
+  body.classList.remove('bg-gradient-to-br', 'from-blue-500', 'to-blue-200', 'from-amber-300', 'to-orange-100', 'from-gray-600', 'to-blue-400', 'from-blue-200', 'to-gray-100', 'from-gray-500', 'to-gray-300');
   
   if (weatherCode.includes('01') || weatherCode.includes('02')) {
-    body.classList.add('bg-gradient-to-br', 'from-amber-300', 'to-orange-100'); // Zonnig
+    body.classList.add('bg-gradient-to-br', 'from-amber-300', 'to-orange-100');
     weatherInfo.classList.add('text-black');
     weatherInfo.classList.remove('text-white');
   } else if (weatherCode.includes('09') || weatherCode.includes('10') || weatherCode.includes('11')) {
-    body.classList.add('bg-gradient-to-br', 'from-gray-600', 'to-blue-400'); // Regen
+    body.classList.add('bg-gradient-to-br', 'from-gray-600', 'to-blue-400');
     weatherInfo.classList.add('text-white');
     weatherInfo.classList.remove('text-black');
   } else if (weatherCode.includes('13')) {
-    body.classList.add('bg-gradient-to-br', 'from-blue-200', 'to-gray-100'); // Sneeuw
+    body.classList.add('bg-gradient-to-br', 'from-blue-200', 'to-gray-100');
     weatherInfo.classList.add('text-black');
     weatherInfo.classList.remove('text-white');
   } else if (weatherCode.includes('03') || weatherCode.includes('04')) {
-    body.classList.add('bg-gradient-to-br', 'from-gray-500', 'to-gray-300'); // Bewolkt
+    body.classList.add('bg-gradient-to-br', 'from-gray-500', 'to-gray-300');
     weatherInfo.classList.add('text-white');
     weatherInfo.classList.remove('text-black');
   } else {
-    body.classList.add('bg-gradient-to-br', 'from-blue-500', 'to-blue-200'); // Standaard
+    body.classList.add('bg-gradient-to-br', 'from-blue-500', 'to-blue-200');
     weatherInfo.classList.add('text-white');
     weatherInfo.classList.remove('text-black');
   }
@@ -87,23 +78,14 @@ function getWeatherTip(data) {
   const weatherCode = data.weather[0].icon;
   const windSpeed = data.wind.speed;
 
-  if (weatherCode.includes('09') || weatherCode.includes('10')) {
-    return "Neem een paraplu mee, buien verwacht!";
-  } else if (weatherCode.includes('01d')) {
-    return "Perfect voor een wandeling, vergeet je zonnebril niet!";
-  } else if (weatherCode.includes('01n')) {
-    return "Heldere nacht, ideaal om sterren te kijken!";
-  } else if (weatherCode.includes('13')) {
-    return "Pas op voor gladheid, sneeuw mogelijk!";
-  } else if (temp < 5) {
-    return "Kleed je warm aan, het wordt fris vandaag!";
-  } else if (windSpeed > 7) {
-    return "Harde wind vandaag, ideaal voor vliegeren!";
-  } else if (temp > 25) {
-    return "Zomers weer, blijf gehydrateerd!";
-  } else {
-    return "Gewoon een mooie dag, geniet ervan!";
-  }
+  if (weatherCode.includes('09') || weatherCode.includes('10')) return "Neem een paraplu mee, buien verwacht!";
+  if (weatherCode.includes('01d')) return "Perfect voor een wandeling, vergeet je zonnebril niet!";
+  if (weatherCode.includes('01n')) return "Heldere nacht, ideaal om sterren te kijken!";
+  if (weatherCode.includes('13')) return "Pas op voor gladheid, sneeuw mogelijk!";
+  if (temp < 5) return "Kleed je warm aan, het wordt fris vandaag!";
+  if (windSpeed > 7) return "Harde wind vandaag, ideaal voor vliegeren!";
+  if (temp > 25) return "Zomers weer, blijf gehydrateerd!";
+  return "Gewoon een mooie dag, geniet ervan!";
 }
 
 function getActivityTip(data, city) {
@@ -112,68 +94,77 @@ function getActivityTip(data, city) {
   const cityLower = city.toLowerCase();
 
   if (cityLower.includes('amsterdam')) {
-    if (weatherCode.includes('01') || temp > 20) {
-      return "Perfect voor een fietstocht langs de Amstel!";
-    } else if (weatherCode.includes('09') || weatherCode.includes('10')) {
-      return "Bezoek het Rijksmuseum, ideaal voor een regenachtige dag!";
-    } else {
-      return "Ontdek de grachten met een rondvaart!";
-    }
-  } else if (cityLower.includes('rotterdam')) {
-    if (weatherCode.includes('01') || temp > 20) {
-      return "Geniet van een wandeling over de Erasmusbrug!";
-    } else if (weatherCode.includes('09') || weatherCode.includes('10')) {
-      return "Bezoek het Erasmus MC, ideaal voor een regenachtige dag!";
-    } else {
-      return "Verken de Markthal voor een unieke ervaring!";
-    }
-  } else if (cityLower.includes('utrecht')) {
-    if (weatherCode.includes('01') || temp > 20) {
-      return "Fiets langs de Oudegracht voor een zonnige dag!";
-    } else if (weatherCode.includes('09') || weatherCode.includes('10')) {
-      return "Ontdek het Centraal Museum, perfect voor regen!";
-    } else {
-      return "Bezoek de Domtoren voor een historische ervaring!";
-    }
-  } else {
-    if (weatherCode.includes('01') || temp > 20) {
-      return "Tijd voor een picknick in het park!";
-    } else if (weatherCode.includes('09') || weatherCode.includes('10')) {
-      return "Blijf binnen en geniet van een filmavond!";
-    } else {
-      return "Verken een lokale markt voor wat gezelligheid!";
-    }
+    if (weatherCode.includes('01') || temp > 20) return "Perfect voor een fietstocht langs de Amstel!";
+    if (weatherCode.includes('09') || weatherCode.includes('10')) return "Bezoek het Rijksmuseum, ideaal voor een regenachtige dag!";
+    return "Ontdek de grachten met een rondvaart!";
   }
+  if (cityLower.includes('rotterdam')) {
+    if (weatherCode.includes('01') || temp > 20) return "Geniet van een wandeling over de Erasmusbrug!";
+    if (weatherCode.includes('09') || weatherCode.includes('10')) return "Bezoek het Erasmus MC, ideaal voor een regenachtige dag!";
+    return "Verken de Markthal voor een unieke ervaring!";
+  }
+  if (cityLower.includes('utrecht')) {
+    if (weatherCode.includes('01') || temp > 20) return "Fiets langs de Oudegracht voor een zonnige dag!";
+    if (weatherCode.includes('09') || weatherCode.includes('10')) return "Ontdek het Centraal Museum, perfect voor regen!";
+    return "Bezoek de Domtoren voor een historische ervaring!";
+  }
+  if (weatherCode.includes('01') || temp > 20) return "Tijd voor een picknick in het park!";
+  if (weatherCode.includes('09') || weatherCode.includes('10')) return "Blijf binnen en geniet van een filmavond!";
+  return "Verken een lokale markt voor wat gezelligheid!";
+}
+
+function getWeatherQuote(data) {
+  const weatherCode = data.weather[0].icon;
+  if (weatherCode.includes('01')) return "De zon schijnt, laat je dag stralen!";
+  if (weatherCode.includes('09') || weatherCode.includes('10')) return "Laat de regen je niet stoppen!";
+  if (weatherCode.includes('13')) return "Sneeuw maakt alles magisch!";
+  if (weatherCode.includes('03') || weatherCode.includes('04')) return "Bewolkt, maar jouw humeur kan schitteren!";
+  return "Elk weer is een nieuw avontuur!";
 }
 
 function saveLocation(city) {
   let history = JSON.parse(localStorage.getItem('locationHistory')) || [];
   history = history.filter(loc => loc.toLowerCase() !== city.toLowerCase());
   history.unshift(city);
-  if (history.length > maxHistory) {
-    history.pop();
-  }
+  if (history.length > maxHistory) history.pop();
   localStorage.setItem('locationHistory', JSON.stringify(history));
 }
 
-function showLocationSuggestions() {
+function saveFavorite(city) {
+  let favorites = JSON.parse(localStorage.getItem('favoriteLocations')) || [];
+  if (!favorites.includes(city)) {
+    favorites.push(city);
+    localStorage.setItem('favoriteLocations', JSON.stringify(favorites));
+    alert(`${city} toegevoegd aan favorieten!`);
+  } else {
+    alert(`${city} is al een favoriet!`);
+  }
+}
+
+function showLocationSuggestions(input) {
   const suggestionsDiv = document.getElementById('location-suggestions');
-  const searchInput = document.getElementById('search-input');
-  if (!suggestionsDiv || !searchInput) return;
+  if (!suggestionsDiv) return;
 
   const history = JSON.parse(localStorage.getItem('locationHistory')) || [];
-  if (history.length === 0) {
-    suggestionsDiv.classList.add('hidden');
-    return;
+  const favorites = JSON.parse(localStorage.getItem('favoriteLocations')) || [];
+  const popularCities = ['Amsterdam', 'Rotterdam', 'Utrecht', 'Den Haag', 'Groningen'];
+  let suggestions = [];
+
+  if (!input.trim()) {
+    suggestions = [...new Set([...favorites, ...history, ...popularCities])];
+  } else {
+    suggestions = [...history, ...favorites, ...popularCities].filter(city => 
+      city.toLowerCase().includes(input.toLowerCase())
+    );
   }
 
   suggestionsDiv.innerHTML = '';
-  history.forEach(city => {
+  suggestions.slice(0, 5).forEach(city => {
     const suggestion = document.createElement('div');
     suggestion.classList.add('suggestion-item', 'p-2', 'hover:bg-gray-200', 'cursor-pointer', 'text-sm');
-    suggestion.textContent = city;
+    suggestion.textContent = city + (favorites.includes(city) ? ' ⭐' : '');
     suggestion.addEventListener('click', () => {
-      searchInput.value = city;
+      document.getElementById('search-input').value = city;
       suggestionsDiv.classList.add('hidden');
       getWeather(null, null, city);
     });
@@ -189,10 +180,10 @@ function updateWeatherWidget() {
   const widget = document.getElementById('weather-widget');
 
   if (!history.length) {
-    fetch(`https://api.openweathermap.org/data/2.5/weather?q=Utrecht&appid=${apiKey}&units=${unit}&lang=nl`)
+    fetch(`https://api.openweathermap.org/data/2.5/weather?q=Utrecht&appid=${apiKey}&units=metric&lang=nl`)
       .then(response => response.json())
       .then(data => {
-        widgetTemp.textContent = `${Math.round(data.main.temp)}${isCelsius ? '°C' : '°F'}`;
+        widgetTemp.textContent = `${Math.round(data.main.temp)}°C`;
         widgetIcon.src = `https://openweathermap.org/img/wn/${data.weather[0].icon}.png`;
         widgetIcon.classList.remove('hidden');
         widget.title = `Weer voor Utrecht`;
@@ -206,10 +197,10 @@ function updateWeatherWidget() {
   }
 
   const city = history[widgetCityIndex % history.length];
-  fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=${unit}&lang=nl`)
+  fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=nl`)
     .then(response => response.json())
     .then(data => {
-      widgetTemp.textContent = `${Math.round(data.main.temp)}${isCelsius ? '°C' : '°F'}`;
+      widgetTemp.textContent = `${Math.round(data.main.temp)}°C`;
       widgetIcon.src = `https://openweathermap.org/img/wn/${data.weather[0].icon}.png`;
       widgetIcon.classList.remove('hidden');
       widget.title = `Weer voor ${city}`;
@@ -221,37 +212,110 @@ function updateWeatherWidget() {
     });
 }
 
+function setupNotifications(city, data) {
+  if (!("Notification" in window)) {
+    alert("Pushmeldingen worden niet ondersteund door je browser.");
+    return;
+  }
+
+  const toggle = document.getElementById('notifications-toggle');
+  if (!toggle) return;
+
+  toggle.addEventListener('click', () => {
+    if (Notification.permission === "granted") {
+      toggleNotifications(city, data);
+    } else if (Notification.permission !== "denied") {
+      Notification.requestPermission().then(permission => {
+        if (permission === "granted") {
+          toggleNotifications(city, data);
+        }
+      });
+    }
+  });
+}
+
+function toggleNotifications(city, data) {
+  const toggle = document.getElementById('notifications-toggle');
+  const isEnabled = toggle.classList.toggle('bg-green-600');
+  toggle.classList.toggle('bg-blue-600');
+  toggle.textContent = isEnabled ? '🔔 Aan' : '🔔 Uit';
+
+  if (isEnabled) {
+    checkExtremeWeather(city, data);
+  }
+}
+
+function checkExtremeWeather(city, data) {
+  if (data.weather[0].main.toLowerCase().includes('rain') && data.rain && data.rain['1h'] > 5) {
+    new Notification(`Zware regen in ${city}!`, {
+      body: `Neem een paraplu mee, ${data.rain['1h']} mm regen verwacht.`,
+      icon: 'icon.png'
+    });
+  }
+  if (data.main.temp > 30) {
+    new Notification(`Hittegolf in ${city}!`, {
+      body: `Blijf gehydrateerd, temperatuur: ${Math.round(data.main.temp)}°C.`,
+      icon: 'icon.png'
+    });
+  }
+}
+
+function drawWeatherTrend(data) {
+  const ctx = document.getElementById('weather-trend').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: data.daily.slice(0, 5).map(day => new Date(day.dt * 1000).toLocaleDateString('nl-NL', { weekday: 'short' })),
+      datasets: [{
+        label: 'Temperatuur (°C)',
+        data: data.daily.slice(0, 5).map(day => Math.round(day.temp.day)),
+        borderColor: '#3b82f6',
+        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+        fill: true,
+        tension: 0.4
+      }]
+    },
+    options: {
+      scales: {
+        y: { beginAtZero: false },
+        x: { ticks: { font: { size: 12 } } }
+      },
+      plugins: {
+        legend: { display: false },
+        title: { display: true, text: '5-Daagse Temperatuurtrend', font: { size: 14 } }
+      }
+    }
+  });
+}
+
 function getWeather(lat, lon, city = null) {
   showLoading();
   const url = city
-    ? `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=${unit}&lang=nl`
-    : `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=${unit}&lang=nl`;
+    ? `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=nl`
+    : `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=nl`;
 
   fetch(url)
     .then(response => {
-      if (!response.ok) {
-        throw new Error(response.status === 401 ? 'Ongeldige API-sleutel' : 'Locatie niet gevonden');
-      }
+      if (!response.ok) throw new Error(response.status === 401 ? 'Ongeldige API-sleutel' : 'Locatie niet gevonden');
       return response.json();
     })
     .then(data => {
-      if (!data.name || !data.sys || !data.main) {
-        throw new Error('Onvolledige weergegevens ontvangen');
-      }
+      lastWeatherData = data;
       const location = `${data.name}, ${data.sys.country}`;
       const temperature = Math.round(data.main.temp);
       const description = data.weather[0].description.charAt(0).toUpperCase() + data.weather[0].description.slice(1);
       const humidity = `Luchtvochtigheid: ${data.main.humidity}%`;
-      const windSpeed = `Wind: ${data.wind.speed} ${unit === "metric" ? "m/s" : "mph"}`;
+      const windSpeed = `Wind: ${data.wind.speed} m/s`;
       const pressure = `Druk: ${data.main.pressure} hPa`;
       const sunrise = new Date(data.sys.sunrise * 1000).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
       const sunset = new Date(data.sys.sunset * 1000).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
       const icon = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
       const weatherTip = getWeatherTip(data);
       const activityTip = getActivityTip(data, data.name);
+      const weatherQuote = getWeatherQuote(data);
 
       document.getElementById('location').textContent = location;
-      document.getElementById('temperature').textContent = `${temperature}${isCelsius ? '°C' : '°F'}`;
+      document.getElementById('temperature').textContent = `${temperature}°C`;
       document.getElementById('description').textContent = description;
       document.getElementById('humidity').textContent = humidity;
       document.getElementById('wind').textContent = windSpeed;
@@ -260,43 +324,49 @@ function getWeather(lat, lon, city = null) {
       document.getElementById('weather-icon').src = icon;
       document.getElementById('weather-tip').textContent = `Weertip: ${weatherTip}`;
       document.getElementById('activity-tip').textContent = `Activiteitentip: ${activityTip}`;
+      document.getElementById('weather-quote').textContent = `Weerquote: ${weatherQuote}`;
 
       setWeatherBackground(data.weather[0].icon);
-
-      if (city) {
-        saveLocation(city);
-      }
-
+      if (city) saveLocation(city);
       currentLat = data.coord.lat;
       currentLon = data.coord.lon;
       loadMap(currentLat, currentLon);
       getHourlyForecast(currentLat, currentLon);
+      getDailyForecast(currentLat, currentLon);
       updateWeatherWidget();
+      setupNotifications(data.name, data);
       hideLoading();
-      console.log('Weergegevens succesvol geladen voor:', location);
     })
     .catch(error => {
       hideLoading();
-      console.error('Fout bij het ophalen van weergegevens:', error.message);
-      alert(`Fout bij het ophalen van het weer: ${error.message}. Controleer de API-sleutel of locatie.`);
+      if (lastWeatherData) {
+        displayOfflineWeather(lastWeatherData);
+      } else {
+        alert(`Fout bij het ophalen van het weer: ${error.message}.`);
+      }
     });
 }
 
+function displayOfflineWeather(data) {
+  const location = `${data.name}, ${data.sys.country}`;
+  document.getElementById('location').textContent = `${location} (Offline)`;
+  document.getElementById('temperature').textContent = `${Math.round(data.main.temp)}°C`;
+  document.getElementById('description').textContent = data.weather[0].description.charAt(0).toUpperCase() + data.weather[0].description.slice(1);
+  document.getElementById('weather-icon').src = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
+  document.getElementById('weather-tip').textContent = `Weertip: Laatste gegevens geladen (offline).`;
+  document.getElementById('activity-tip').textContent = `Activiteitentip: Controleer later voor updates.`;
+  setWeatherBackground(data.weather[0].icon);
+}
+
 function getHourlyForecast(lat, lon) {
-  fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=${unit}&lang=nl`)
+  fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=nl`)
     .then(response => {
-      if (!response.ok) {
-        throw new Error(response.status === 401 ? 'Ongeldige API-sleutel' : 'Voorspelling niet beschikbaar');
-      }
+      if (!response.ok) throw new Error('Voorspelling niet beschikbaar');
       return response.json();
     })
     .then(data => {
       const hourlyData = data.list.slice(0, 12);
       const hourlyForecast = document.getElementById('hourly-forecast');
-      if (!hourlyForecast) {
-        console.error('Uurlijkse voorspelling element niet gevonden');
-        return;
-      }
       hourlyForecast.innerHTML = '';
 
       hourlyData.forEach(hour => {
@@ -304,32 +374,30 @@ function getHourlyForecast(lat, lon) {
         hourDiv.classList.add('hour', 'snap-center');
         hourDiv.innerHTML = `
           <p class="font-semibold text-xs sm:text-sm">${new Date(hour.dt * 1000).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })}</p>
-          <img src="https://openweathermap.org/img/wn/${hour.weather[0].icon}.png" alt="Weer icoon" class="w-8 sm:w-10">
-          <p class="text-xs sm:text-sm">${Math.round(hour.main.temp)}${isCelsius ? '°C' : '°F'}</p>
+          <img src="https://openweathermap.org/img/wn/${hour.weather[0].icon}.png" alt="Weer icoon" class="w-8 sm:w-10 weather-animate">
+          <p class="text-xs sm:text-sm">${Math.round(hour.main.temp)}°C</p>
           <p class="text-xs sm:text-sm">${hour.weather[0].description.charAt(0).toUpperCase() + hour.weather[0].description.slice(1)}</p>
         `;
         hourlyForecast.appendChild(hourDiv);
       });
-      console.log('Uurlijkse voorspelling geladen voor:', lat, lon);
     })
     .catch(error => {
-      console.error('Fout bij het ophalen van uurlijkse voorspelling:', error.message);
-      alert(`Fout bij het ophalen van de uurlijkse voorspelling: ${error.message}`);
+      console.error('Fout bij uurlijkse voorspelling:', error);
     });
 }
 
-function toggleUnit() {
-  isCelsius = !isCelsius;
-  unit = isCelsius ? "metric" : "imperial";
-  const unitToggle = document.getElementById('unit-toggle');
-  if (unitToggle) {
-    unitToggle.textContent = isCelsius ? "°C/°F" : "°F/°C";
-  }
-  if (currentLat && currentLon) {
-    getWeather(currentLat, currentLon);
-  } else {
-    alert('Selecteer eerst een locatie!');
-  }
+function getDailyForecast(lat, lon) {
+  fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude=current,minutely,hourly,alerts&appid=${apiKey}&units=metric&lang=nl`)
+    .then(response => {
+      if (!response.ok) throw new Error('Dagelijkse voorspelling niet beschikbaar');
+      return response.json();
+    })
+    .then(data => {
+      drawWeatherTrend(data);
+    })
+    .catch(error => {
+      console.error('Fout bij dagelijkse voorspelling:', error);
+    });
 }
 
 function searchWeather() {
@@ -343,20 +411,16 @@ function searchWeather() {
     } else {
       alert('Voer een geldige locatie in!');
     }
-  } else {
-    console.error('Zoekinvoer of suggestiediv niet gevonden');
   }
 }
 
 function init() {
-  // Registreer service worker
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js')
       .then(reg => console.log('Service Worker geregistreerd:', reg))
       .catch(err => console.error('Service Worker registratie mislukt:', err));
   }
 
-  // Haal locatie op
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       position => {
@@ -364,13 +428,11 @@ function init() {
         currentLat = latitude;
         currentLon = longitude;
         getWeather(latitude, longitude);
-        console.log('Geolocatie succesvol:', latitude, longitude);
       },
       error => {
         currentLat = 52.3676;
         currentLon = 4.9041;
         getWeather(currentLat, currentLon, 'Amsterdam');
-        console.warn('Geolocatie mislukt, fallback naar Amsterdam:', error.message);
         alert('Locatie kan niet worden bepaald. Standaardlocatie: Amsterdam.');
       }
     );
@@ -378,22 +440,14 @@ function init() {
     currentLat = 52.3676;
     currentLon = 4.9041;
     getWeather(currentLat, currentLon, 'Amsterdam');
-    console.warn('Geolocatie niet ondersteund, fallback naar Amsterdam');
     alert('Geolocatie wordt niet ondersteund. Standaardlocatie: Amsterdam.');
   }
 
-  // Locatiegeschiedenis event listeners
   const searchInput = document.getElementById('search-input');
   const suggestionsDiv = document.getElementById('location-suggestions');
   if (searchInput && suggestionsDiv) {
-    searchInput.addEventListener('focus', showLocationSuggestions);
-    searchInput.addEventListener('input', () => {
-      if (!searchInput.value.trim()) {
-        showLocationSuggestions();
-      } else {
-        suggestionsDiv.classList.add('hidden');
-      }
-    });
+    searchInput.addEventListener('focus', () => showLocationSuggestions(searchInput.value));
+    searchInput.addEventListener('input', () => showLocationSuggestions(searchInput.value));
     document.addEventListener('click', e => {
       if (!searchInput.contains(e.target) && !suggestionsDiv.contains(e.target)) {
         suggestionsDiv.classList.add('hidden');
@@ -401,7 +455,6 @@ function init() {
     });
   }
 
-  // Widget event listener
   const weatherWidget = document.getElementById('weather-widget');
   if (weatherWidget) {
     weatherWidget.addEventListener('click', () => {
@@ -409,22 +462,24 @@ function init() {
       updateWeatherWidget();
     });
   }
+
+  const markFavorite = document.getElementById('mark-favorite');
+  if (markFavorite) {
+    markFavorite.addEventListener('click', () => {
+      const city = document.getElementById('location').textContent.split(',')[0];
+      saveFavorite(city);
+    });
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   const searchBtn = document.getElementById('search-btn');
   const searchInput = document.getElementById('search-input');
-  const unitToggle = document.getElementById('unit-toggle');
-
-  if (searchBtn && searchInput && unitToggle) {
+  if (searchBtn && searchInput) {
     searchBtn.addEventListener('click', searchWeather);
     searchInput.addEventListener('keypress', e => {
       if (e.key === 'Enter') searchWeather();
     });
-    unitToggle.addEventListener('click', toggleUnit);
     init();
-  } else {
-    console.error('Een of meer UI-elementen niet gevonden');
-    alert('Fout: Kan de app niet initialiseren. Controleer de pagina-opbouw.');
   }
 });

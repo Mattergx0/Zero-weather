@@ -15,26 +15,26 @@
   <link rel="icon" href="icon.png">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script defer src="script.js"></script>
 </head>
 <body class="bg-gradient-to-br from-blue-500 to-blue-200 text-white min-h-screen flex flex-col font-sans transition-all duration-500">
-  <header class="bg-blue-800 bg-opacity-80 p-3 shadow-lg">
+  <header class="bg-blue-800 bg-opacity-80 p-3 shadow-lg backdrop-filter backdrop-blur-sm">
     <div class="container mx-auto flex justify-between items-center px-3 max-w-7xl">
       <div class="flex items-center gap-3">
-        <img src="icon.png" alt="Zero Weather Logo" class="w-8 h-8 sm:w-10 sm:h-10">
         <h1 class="text-[1.125rem] sm:text-[1.25rem] font-bold">Zero Weather</h1>
       </div>
       <div class="flex items-center gap-2 relative">
         <input id="search-input" type="text" placeholder="Zoek locatie..." class="p-2 rounded-lg text-black text-sm w-32 sm:w-40" aria-label="Zoek een locatie">
         <div id="location-suggestions" class="absolute top-full left-0 w-full bg-white text-black rounded-lg shadow-lg hidden mt-1 max-h-40 overflow-y-auto"></div>
         <button id="search-btn" class="bg-blue-600 p-2 rounded-lg hover:bg-blue-700 text-sm" aria-label="Zoek locatie">Zoek</button>
-        <button id="unit-toggle" class="bg-blue-600 p-2 rounded-lg hover:bg-blue-700 text-sm" aria-label="Wissel tussen Celsius en Fahrenheit">°C/°F</button>
+        <button id="notifications-toggle" class="bg-blue-600 p-2 rounded-lg hover:bg-blue-700 text-sm" aria-label="Schakel weernotificaties">🔔</button>
       </div>
     </div>
   </header>
 
   <main class="container mx-auto flex-grow p-3 pb-16 max-w-7xl">
-    <section class="weather-info bg-white bg-opacity-30 rounded-xl p-5 text-center shadow-lg mb-5 relative">
+    <section class="weather-info bg-white bg-opacity-30 rounded-xl p-5 text-center shadow-lg mb-5 relative backdrop-filter backdrop-blur-sm">
       <div id="weather-widget" class="absolute top-3 right-3 w-10 h-10 sm:w-12 sm:h-12 bg-blue-600 rounded-full flex items-center justify-center cursor-pointer hover:bg-blue-700 transition-colors" title="Weer voor andere locatie">
         <span id="widget-temp" class="text-xs sm:text-sm">-</span>
         <img id="widget-icon" src="" alt="Weer icoon" class="w-5 h-5 sm:w-6 sm:h-6 hidden">
@@ -43,7 +43,7 @@
       <div id="loading" class="hidden text-sm my-3">Gegevens worden geladen...</div>
       <div class="flex justify-center items-center gap-3 my-3">
         <span id="temperature" class="text-2xl sm:text-3xl font-bold">-°C</span>
-        <img id="weather-icon" src="" alt="Weer icoon" class="w-10 sm:w-12 hidden">
+        <img id="weather-icon" src="" alt="Weer icoon" class="w-10 sm:w-12 hidden weather-animate">
       </div>
       <p id="description" class="text-sm sm:text-base">Laden...</p>
       <div class="grid grid-cols-2 gap-3 mt-3 text-sm sm:text-base">
@@ -55,6 +55,12 @@
       <div class="text-sm sm:text-base mt-3 italic">
         <p id="weather-tip">Weertip: Laden...</p>
         <p id="activity-tip">Activiteitentip: Laden...</p>
+        <p id="weather-quote">Weerquote: Laden...</p>
+      </div>
+      <canvas id="weather-trend" class="mt-5 max-w-full h-32"></canvas>
+      <div class="mt-3">
+        <button id="mark-favorite" class="bg-blue-600 p-2 rounded-lg hover:bg-blue-700 text-sm" aria-label="Markeer als favoriet">⭐ Markeer als favoriet</button>
+        <a href="adventure.html" class="inline-block bg-blue-600 p-2 rounded-lg hover:bg-blue-700 text-sm ml-2" aria-label="Naar Weeravontuur">🌍 Weeravontuur</a>
       </div>
     </section>
 
@@ -69,7 +75,7 @@
     </section>
   </main>
 
-  <footer class="bg-blue-800 bg-opacity-80 p-3 text-center">
+  <footer class="bg-blue-800 bg-opacity-80 p-3 text-center backdrop-filter backdrop-blur-sm">
     <p class="text-xs sm:text-sm">© 2025 Zero Weather. Alle rechten voorbehouden.</p>
   </footer>
 </body>

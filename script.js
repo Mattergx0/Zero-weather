@@ -23,7 +23,10 @@ function hideLoading() {
 
 function loadMap(lat, lon) {
   const mapElement = document.getElementById('map');
-  if (!mapElement) return;
+  if (!mapElement) {
+    console.error('Kaartelement (#map) niet gevonden.');
+    return;
+  }
   try {
     const map = L.map('map', {
       zoomControl: true,
@@ -40,7 +43,7 @@ function loadMap(lat, lon) {
     }).addTo(map);
   } catch (error) {
     console.error('Fout bij het laden van de kaart:', error);
-    alert('Fout bij het laden van de regenkaart.');
+    alert('Fout bij het laden van de regenkaart. Controleer je internetverbinding.');
   }
 }
 
@@ -48,27 +51,23 @@ function setWeatherBackground(weatherCode) {
   const body = document.body;
   const weatherInfo = document.querySelector('.weather-info');
   body.classList.remove('bg-gradient-to-br', 'from-blue-500', 'to-blue-200', 'from-amber-300', 'to-orange-100', 'from-gray-600', 'to-blue-400', 'from-blue-200', 'to-gray-100', 'from-gray-500', 'to-gray-300');
-  
+  weatherInfo.classList.remove('text-black', 'text-white');
+
   if (weatherCode.includes('01') || weatherCode.includes('02')) {
     body.classList.add('bg-gradient-to-br', 'from-amber-300', 'to-orange-100');
     weatherInfo.classList.add('text-black');
-    weatherInfo.classList.remove('text-white');
   } else if (weatherCode.includes('09') || weatherCode.includes('10') || weatherCode.includes('11')) {
     body.classList.add('bg-gradient-to-br', 'from-gray-600', 'to-blue-400');
     weatherInfo.classList.add('text-white');
-    weatherInfo.classList.remove('text-black');
   } else if (weatherCode.includes('13')) {
     body.classList.add('bg-gradient-to-br', 'from-blue-200', 'to-gray-100');
     weatherInfo.classList.add('text-black');
-    weatherInfo.classList.remove('text-white');
   } else if (weatherCode.includes('03') || weatherCode.includes('04')) {
     body.classList.add('bg-gradient-to-br', 'from-gray-500', 'to-gray-300');
     weatherInfo.classList.add('text-white');
-    weatherInfo.classList.remove('text-black');
   } else {
     body.classList.add('bg-gradient-to-br', 'from-blue-500', 'to-blue-200');
     weatherInfo.classList.add('text-white');
-    weatherInfo.classList.remove('text-black');
   }
 }
 
@@ -172,40 +171,10 @@ function showLocationSuggestions(input) {
   suggestionsDiv.classList.remove('hidden');
 }
 
-function setupNotifications(city, data) {
-  if (!("Notification" in window)) {
-    alert("Pushmeldingen worden niet ondersteund door je browser.");
-    return;
-  }
-
-  const toggle = document.getElementById('notifications-toggle');
-  if (!toggle) return;
-
-  toggle.addEventListener('click', () => {
-    if (Notification.permission === "granted") {
-      toggleNotifications(city, data);
-    } else if (Notification.permission !== "denied") {
-      Notification.requestPermission().then(permission => {
-        if (permission === "granted") {
-          toggleNotifications(city, data);
-        }
-      });
-    }
-  });
-}
-
-function toggleNotifications(city, data) {
-  const toggle = document.getElementById('notifications-toggle');
-  const isEnabled = toggle.classList.toggle('bg-green-600');
-  toggle.classList.toggle('bg-blue-600');
-  toggle.textContent = isEnabled ? '🔔 Aan' : '🔔 Uit';
-
-  if (isEnabled) {
-    checkExtremeWeather(city, data);
-  }
-}
-
 function checkExtremeWeather(city, data) {
+  const notificationsEnabled = localStorage.getItem('notificationsEnabled') === 'true';
+  if (!notificationsEnabled) return;
+
   if (data.weather[0].main.toLowerCase().includes('rain') && data.rain && data.rain['1h'] > 5) {
     new Notification(`Zware regen in ${city}!`, {
       body: `Neem een paraplu mee, ${data.rain['1h']} mm regen verwacht.`,
@@ -221,7 +190,8 @@ function checkExtremeWeather(city, data) {
 }
 
 function drawWeatherTrend(data) {
-  const ctx = document.getElementById('weather-trend').getContext('2d');
+  const ctx = document.getElementById('weather-trend')?.getContext('2d');
+  if (!ctx) return;
   new Chart(ctx, {
     type: 'line',
     data: {
@@ -250,9 +220,10 @@ function drawWeatherTrend(data) {
 
 function getWeather(lat, lon, city = null) {
   showLoading();
+  const unit = localStorage.getItem('temperatureUnit') || 'metric';
   const url = city
-    ? `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=nl`
-    : `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=nl`;
+    ? `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=${unit}&lang=nl`
+    : `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=${unit}&lang=nl`;
 
   fetch(url)
     .then(response => {
@@ -263,9 +234,10 @@ function getWeather(lat, lon, city = null) {
       lastWeatherData = data;
       const location = `${data.name}, ${data.sys.country}`;
       const temperature = Math.round(data.main.temp);
+      const unitSymbol = unit === 'metric' ? '°C' : '°F';
       const description = data.weather[0].description.charAt(0).toUpperCase() + data.weather[0].description.slice(1);
       const humidity = `Luchtvochtigheid: ${data.main.humidity}%`;
-      const windSpeed = `Wind: ${data.wind.speed} m/s`;
+      const windSpeed = `Wind: ${data.wind.speed} ${unit === 'metric' ? 'm/s' : 'mph'}`;
       const pressure = `Druk: ${data.main.pressure} hPa`;
       const sunrise = new Date(data.sys.sunrise * 1000).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
       const sunset = new Date(data.sys.sunset * 1000).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
@@ -275,7 +247,7 @@ function getWeather(lat, lon, city = null) {
       const weatherQuote = getWeatherQuote(data);
 
       document.getElementById('location').textContent = location;
-      document.getElementById('temperature').textContent = `${temperature}°C`;
+      document.getElementById('temperature').textContent = `${temperature}${unitSymbol}`;
       document.getElementById('description').textContent = description;
       document.getElementById('humidity').textContent = humidity;
       document.getElementById('wind').textContent = windSpeed;
@@ -293,7 +265,7 @@ function getWeather(lat, lon, city = null) {
       loadMap(currentLat, currentLon);
       getHourlyForecast(currentLat, currentLon);
       getDailyForecast(currentLat, currentLon);
-      setupNotifications(data.name, data);
+      checkExtremeWeather(data.name, data);
       hideLoading();
     })
     .catch(error => {
@@ -308,8 +280,10 @@ function getWeather(lat, lon, city = null) {
 
 function displayOfflineWeather(data) {
   const location = `${data.name}, ${data.sys.country}`;
+  const unit = localStorage.getItem('temperatureUnit') || 'metric';
+  const unitSymbol = unit === 'metric' ? '°C' : '°F';
   document.getElementById('location').textContent = `${location} (Offline)`;
-  document.getElementById('temperature').textContent = `${Math.round(data.main.temp)}°C`;
+  document.getElementById('temperature').textContent = `${Math.round(data.main.temp)}${unitSymbol}`;
   document.getElementById('description').textContent = data.weather[0].description.charAt(0).toUpperCase() + data.weather[0].description.slice(1);
   document.getElementById('weather-icon').src = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
   document.getElementById('weather-tip').textContent = `Weertip: Laatste gegevens geladen (offline).`;
@@ -318,7 +292,8 @@ function displayOfflineWeather(data) {
 }
 
 function getHourlyForecast(lat, lon) {
-  fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=nl`)
+  const unit = localStorage.getItem('temperatureUnit') || 'metric';
+  fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=${unit}&lang=nl`)
     .then(response => {
       if (!response.ok) throw new Error('Voorspelling niet beschikbaar');
       return response.json();
@@ -326,7 +301,9 @@ function getHourlyForecast(lat, lon) {
     .then(data => {
       const hourlyData = data.list.slice(0, 12);
       const hourlyForecast = document.getElementById('hourly-forecast');
+      if (!hourlyForecast) return;
       hourlyForecast.innerHTML = '';
+      const unitSymbol = unit === 'metric' ? '°C' : '°F';
 
       hourlyData.forEach(hour => {
         const hourDiv = document.createElement('div');
@@ -334,7 +311,7 @@ function getHourlyForecast(lat, lon) {
         hourDiv.innerHTML = `
           <p class="font-semibold text-xs sm:text-sm">${new Date(hour.dt * 1000).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })}</p>
           <img src="https://openweathermap.org/img/wn/${hour.weather[0].icon}.png" alt="Weer icoon" class="w-8 sm:w-10 weather-animate">
-          <p class="text-xs sm:text-sm">${Math.round(hour.main.temp)}°C</p>
+          <p class="text-xs sm:text-sm">${Math.round(hour.main.temp)}${unitSymbol}</p>
           <p class="text-xs sm:text-sm">${hour.weather[0].description.charAt(0).toUpperCase() + hour.weather[0].description.slice(1)}</p>
         `;
         hourlyForecast.appendChild(hourDiv);
@@ -346,7 +323,8 @@ function getHourlyForecast(lat, lon) {
 }
 
 function getDailyForecast(lat, lon) {
-  fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude=current,minutely,hourly,alerts&appid=${apiKey}&units=metric&lang=nl`)
+  const unit = localStorage.getItem('temperatureUnit') || 'metric';
+  fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude=current,minutely,hourly,alerts&appid=${apiKey}&units=${unit}&lang=nl`)
     .then(response => {
       if (!response.ok) throw new Error('Dagelijkse voorspelling niet beschikbaar');
       return response.json();

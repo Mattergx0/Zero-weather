@@ -1,11 +1,13 @@
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open('zero-weather-cache-v9').then(cache => {
+    caches.open('zero-weather-cache-v10').then(cache => {
       return cache.addAll([
         '/',
         '/index.html',
-        '/style.css',
         '/script.js',
+        '/style.css',
+        '/settings.html',
+        '/settings.js',
         '/manifest.json',
         '/icon.png'
       ]);
@@ -23,7 +25,7 @@ self.addEventListener('fetch', event => {
 });
 
 self.addEventListener('activate', event => {
-  const cacheWhitelist = ['zero-weather-cache-v9'];
+  const cacheWhitelist = ['zero-weather-cache-v10'];
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(

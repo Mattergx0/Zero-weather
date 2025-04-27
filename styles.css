@@ -4,6 +4,13 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overscroll-behavior-y: none;
+  background: linear-gradient(to bottom right, #3b82f6, #93c5fd) !important;
+}
+
+/* Donkere modus */
+body.dark-mode {
+  background: linear-gradient(to bottom right, #1e3a8a, #3b82f6) !important;
+  color: #e5e7eb;
 }
 
 /* Safe area handling */
@@ -27,7 +34,15 @@ body {
 /* Kaart styling */
 #map {
   width: 100%;
+  height: 40vh;
   border-radius: 12px;
+  background: #e5e7eb;
+}
+
+@media (min-width: 640px) {
+  #map {
+    height: 50vh;
+  }
 }
 
 /* Locatie suggesties */
@@ -91,6 +106,14 @@ body {
   }
 }
 
+/* Settings sectie */
+.settings-section {
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(4px);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
 /* Touch-vriendelijke knoppen en inputs */
 button, input {
   -webkit-appearance: none;
@@ -135,7 +158,7 @@ button, input {
 /* Responsieve media queries */
 @media (max-width: 359px) {
   #search-input { width: 7rem; }
-  .weather-info { padding: 0.75rem; }
+  .weather-info, .settings-section { padding: 0.75rem; }
   .hour { min-width: 4rem; }
 }
 
@@ -146,7 +169,7 @@ button, input {
 @media (min-width: 640px) {
   #search-input { width: 10rem; }
   .hour { min-width: 5rem; padding: 0.75rem; }
-  .weather-info { padding: 1.25rem; }
+  .weather-info, .settings-section { padding: 1.25rem; }
 }
 
 @media (min-width: 768px) {

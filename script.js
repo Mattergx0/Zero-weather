@@ -1,7 +1,6 @@
 const apiKey = "51449fa3b241b52737fe2b3626795957";
 let currentLat, currentLon;
 const maxHistory = 5;
-let widgetCityIndex = 0;
 let lastWeatherData = null;
 
 function showLoading() {
@@ -173,45 +172,6 @@ function showLocationSuggestions(input) {
   suggestionsDiv.classList.remove('hidden');
 }
 
-function updateWeatherWidget() {
-  const history = JSON.parse(localStorage.getItem('locationHistory')) || [];
-  const widgetTemp = document.getElementById('widget-temp');
-  const widgetIcon = document.getElementById('widget-icon');
-  const widget = document.getElementById('weather-widget');
-
-  if (!history.length) {
-    fetch(`https://api.openweathermap.org/data/2.5/weather?q=Utrecht&appid=${apiKey}&units=metric&lang=nl`)
-      .then(response => response.json())
-      .then(data => {
-        widgetTemp.textContent = `${Math.round(data.main.temp)}°C`;
-        widgetIcon.src = `https://openweathermap.org/img/wn/${data.weather[0].icon}.png`;
-        widgetIcon.classList.remove('hidden');
-        widget.title = `Weer voor Utrecht`;
-      })
-      .catch(error => {
-        console.error('Fout bij widget update:', error);
-        widgetTemp.textContent = '-';
-        widgetIcon.classList.add('hidden');
-      });
-    return;
-  }
-
-  const city = history[widgetCityIndex % history.length];
-  fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=nl`)
-    .then(response => response.json())
-    .then(data => {
-      widgetTemp.textContent = `${Math.round(data.main.temp)}°C`;
-      widgetIcon.src = `https://openweathermap.org/img/wn/${data.weather[0].icon}.png`;
-      widgetIcon.classList.remove('hidden');
-      widget.title = `Weer voor ${city}`;
-    })
-    .catch(error => {
-      console.error('Fout bij widget update:', error);
-      widgetTemp.textContent = '-';
-      widgetIcon.classList.add('hidden');
-    });
-}
-
 function setupNotifications(city, data) {
   if (!("Notification" in window)) {
     alert("Pushmeldingen worden niet ondersteund door je browser.");
@@ -333,7 +293,6 @@ function getWeather(lat, lon, city = null) {
       loadMap(currentLat, currentLon);
       getHourlyForecast(currentLat, currentLon);
       getDailyForecast(currentLat, currentLon);
-      updateWeatherWidget();
       setupNotifications(data.name, data);
       hideLoading();
     })
@@ -452,14 +411,6 @@ function init() {
       if (!searchInput.contains(e.target) && !suggestionsDiv.contains(e.target)) {
         suggestionsDiv.classList.add('hidden');
       }
-    });
-  }
-
-  const weatherWidget = document.getElementById('weather-widget');
-  if (weatherWidget) {
-    weatherWidget.addEventListener('click', () => {
-      widgetCityIndex++;
-      updateWeatherWidget();
     });
   }
 

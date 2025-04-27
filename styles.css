@@ -1,125 +1,39 @@
-/* System font voor cross-platform consistentie */
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  overscroll-behavior-y: none; /* Voorkom pull-to-refresh op Android */
-}
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open('zero-weather-cache-v6').then(cache => {
+      return cache.addAll([
+        '/',
+        '/index.html',
+        '/style.css',
+        '/script.js',
+        '/manifest.json',
+        '/icon.png'
+      ]);
+    })
+  );
+  console.log('Service Worker geïnstalleerd');
+});
 
-/* Safe area handling voor iOS en Android */
-@supports (padding-bottom: env(safe-area-inset-bottom)) {
-  body {
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
-  }
-}
+self.addEventListener('fetch', event => {
+  event.respondWith(
+    caches.match(event.request).then(response => {
+      return response || fetch(event.request);
+    })
+  );
+});
 
-/* Kaart styling */
-#map {
-  height: 100%;
-  border-radius: 12px;
-}
-
-/* Locatie suggesties */
-#location-suggestions {
-  z-index: 10;
-}
-
-.suggestion-item {
-  transition: background-color 0.2s ease;
-}
-
-.suggestion-item:hover {
-  background-color: #e5e7eb;
-}
-
-/* Uurlijkse voorspelling kaart */
-.hour {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
-  padding: 8px;
-  text-align: center;
-  min-width: 70px;
-  transition: transform 0.3s ease;
-  touch-action: pan-x;
-}
-
-/* Hover-effect alleen voor non-touch apparaten */
-@media (hover: hover) {
-  .hour:hover {
-    transform: scale(1.05);
-  }
-}
-
-/* Touch-vriendelijke knoppen en inputs */
-button, input {
-  -webkit-appearance: none;
-  appearance: none;
-  touch-action: manipulation;
-  min-height: 44px; /* Minimum tap target grootte */
-  min-width: 44px;
-}
-
-/* Scroll snapping voor uurlijkse voorspelling */
-#hourly-forecast {
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch; /* Soepele scrolling op iOS */
-}
-
-/* Aangepaste scrollbar */
-#hourly-forecast::-webkit-scrollbar {
-  height: 5px;
-}
-
-#hourly-forecast::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
-}
-
-#hourly-forecast::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 4px;
-}
-
-/* Weerinfo animatie */
-.weather-info {
-  animation: fadeIn 0.5s ease-in;
-}
-
-/* Weertip styling */
-#weather-tip {
-  background: rgba(255, 255, 255, 0.1);
-  padding: 8px;
-  border-radius: 8px;
-  display: inline-block;
-}
-
-/* Fade-in animatie */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-/* Verberg weericoon tijdens laden */
-#loading:not(.hidden) ~ .flex #weather-icon {
-  display: none;
-}
-
-/* Media query voor grotere schermen */
-@media (min-width: 640px) {
-  .hour {
-    min-width: 80px;
-    padding: 12px;
-  }
-  #search-input {
-    width: 9rem;
-  }
-  .text-lg {
-    font-size: 1.25rem;
-  }
-  .text-xl {
-    font-size: 1.5rem;
-  }
-}
+self.addEventListener('activate', event => {
+  const cacheWhitelist = ['zero-weather-cache-v6'];
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+          if (!cacheWhitelist.includes(cacheName)) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
+  );
+  console.log('Service Worker geactiveerd');
+});
